@@ -948,17 +948,82 @@ p { color: var(--muted); line-height: 1.75; }
   .trust-row, .features-grid, .products-grid, .process-grid, .stats-grid, .reviews-grid, .assurance, .tab-content, .form-grid, .footer-grid { grid-template-columns: 1fr; }
   .admin-row, .admin-table.compact .admin-row { grid-template-columns: 1fr; }
   .admin-auth-screen { padding: 18px; }
-  .admin-main { padding: 16px; }
-  .admin-sidebar { padding: 18px; }
-  .admin-side-brand img { width: 138px; height: 88px; }
-  .admin-nav { grid-template-columns: 1fr; }
-  .admin-top-actions, .admin-inline, .admin-settings-grid, .admin-metrics { grid-template-columns: 1fr; }
+  .admin-main { padding: 12px; }
+  .admin-sidebar {
+    padding: 12px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(212,175,55,.35);
+  }
+  .admin-side-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 2px 10px;
+  }
+  .admin-side-brand img { width: 92px; height: 58px; }
+  .admin-side-brand span { font-size: 10px; }
+  .admin-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    gap: 8px;
+    padding: 8px;
+  }
+  .admin-nav button {
+    min-width: 0;
+    min-height: 42px;
+    padding: 0 10px;
+    font-size: 12px;
+    white-space: normal;
+    line-height: 1.2;
+  }
+  .admin-nav button svg {
+    width: 17px;
+    min-width: 17px;
+  }
+  .admin-topbar {
+    padding: 16px;
+    gap: 12px;
+  }
+  .admin-topbar h2 { font-size: 30px; }
+  .admin-topbar p { font-size: 14px; line-height: 1.55; }
+  .admin-top-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .admin-top-actions .btn { width: 100%; min-height: 46px; }
+  .admin-content { margin-top: 14px; gap: 14px; }
+  .admin-panel { padding: 16px; }
+  .admin-panel-head {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .admin-panel-head h3 { font-size: 25px; }
+  .admin-inline, .admin-settings-grid, .admin-metrics { grid-template-columns: 1fr; }
+  .admin-metric {
+    min-height: 126px;
+    padding: 18px;
+  }
+  .admin-metric span { margin-top: 10px; }
+  .admin-metric b { font-size: 30px; }
   .admin-list-row, .user-row { grid-template-columns: 1fr; }
   .seo-mini-grid { grid-template-columns: 1fr; }
   .seo-score-ring { width: 150px; height: 150px; }
   .admin-product-card { padding: 10px; }
   .admin-product-media { min-height: 220px; }
   .admin-hero-card img { height: 180px; }
+  .admin-product-actions .btn,
+  .admin-hero-fields .btn,
+  .payment-panel .btn { width: 100%; }
+  .seo-hero {
+    padding: 16px;
+    gap: 14px;
+  }
+  .keyword-row, .seo-check, .admin-health div, .admin-activity, .admin-list-row {
+    padding: 12px;
+  }
   .products-head { display: block; }
   .size-grid { grid-template-columns: repeat(2, 1fr); }
   .cart-item { grid-template-columns: 86px 1fr; }

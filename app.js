@@ -670,13 +670,13 @@ function renderAdmin() {
           <span>Store Admin</span>
         </div>
         <nav class="admin-nav">
-          <button class="active" onclick="adminTab('overview', this)">${icon("layout-dashboard")} Overview</button>
-          <button onclick="adminTab('products', this)">${icon("package")} Products</button>
-          <button onclick="adminTab('orders', this)">${icon("receipt")} Orders</button>
-          <button onclick="adminTab('users', this)">${icon("users")} Users</button>
-          <button onclick="adminTab('media', this)">${icon("image")} Images & Content</button>
-          <button onclick="adminTab('seo', this)">${icon("search-check")} SEO Reports</button>
-          <button onclick="adminTab('razorpay', this)">${icon("credit-card")} Razorpay</button>
+          <button class="active" data-admin-tab="overview" onclick="adminTab('overview', this)">${icon("layout-dashboard")} Overview</button>
+          <button data-admin-tab="products" onclick="adminTab('products', this)">${icon("package")} Products</button>
+          <button data-admin-tab="orders" onclick="adminTab('orders', this)">${icon("receipt")} Orders</button>
+          <button data-admin-tab="users" onclick="adminTab('users', this)">${icon("users")} Users</button>
+          <button data-admin-tab="media" onclick="adminTab('media', this)">${icon("image")} Images & Content</button>
+          <button data-admin-tab="seo" onclick="adminTab('seo', this)">${icon("search-check")} SEO Reports</button>
+          <button data-admin-tab="razorpay" onclick="adminTab('razorpay', this)">${icon("credit-card")} Razorpay</button>
         </nav>
         <div class="admin-side-card">
           <b>Demo Mode</b>
@@ -721,7 +721,7 @@ function adminOverview() {
         </div>
       </section>
       <section class="admin-panel">
-        <div class="admin-panel-head"><div><span class="eyebrow">Latest Orders</span><h3>Recent Activity</h3></div><button class="admin-mini-btn" onclick="adminTab('orders', document.querySelectorAll('.admin-nav button')[2])">View All</button></div>
+        <div class="admin-panel-head"><div><span class="eyebrow">Latest Orders</span><h3>Recent Activity</h3></div><button class="admin-mini-btn" onclick="adminSelectTab('orders')">View All</button></div>
         ${latest.length ? latest.map(order => `<div class="admin-activity"><div><b>${order.id}</b><span>${order.date} • ${order.items.length} items</span></div><strong>${money(order.total)}</strong></div>`).join("") : `<p>No orders yet. Place a demo order from checkout.</p>`}
       </section>
     </div>`;
@@ -895,6 +895,11 @@ function adminTab(tab, btn) {
   const titles = { overview: "Control Center", products: "Product Studio", orders: "Order Desk", users: "Customer Records", media: "Brand & Media", seo: "SEO Reports", razorpay: "Payment Settings" };
   document.getElementById("adminPageTitle").textContent = titles[tab] || "Control Center";
   refreshIcons();
+}
+
+function adminSelectTab(tab) {
+  const btn = document.querySelector(`.admin-nav button[data-admin-tab="${tab}"]`);
+  if (btn) adminTab(tab, btn);
 }
 
 function escapeAttr(value = "") {
