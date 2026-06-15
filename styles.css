@@ -512,26 +512,49 @@ p { color: var(--muted); line-height: 1.75; }
   font-size: 12px;
   font-weight: 800;
 }
-.admin-nav { display: grid; gap: 8px; }
+.admin-nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255,253,248,.96);
+  border: 1px solid rgba(212,175,55,.45);
+  box-shadow: 0 16px 34px rgba(7,44,32,.18);
+}
 .admin-nav button {
-  min-height: 48px;
+  min-height: 52px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
-  color: rgba(247,242,230,.86);
+  color: var(--green-2);
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 14px;
+  padding: 0 16px;
   font-weight: 800;
   text-align: left;
+  letter-spacing: 0;
 }
-.admin-nav button svg { width: 19px; color: var(--gold); }
+.admin-nav button svg {
+  width: 20px;
+  min-width: 20px;
+  color: var(--gold);
+  stroke-width: 2.4;
+}
 .admin-nav button.active,
 .admin-nav button:hover {
-  background: rgba(247,242,230,.12);
-  border-color: rgba(212,175,55,.38);
+  background: var(--green);
+  border-color: var(--gold);
   color: white;
+  box-shadow: 0 10px 22px rgba(15,61,46,.18);
+}
+.admin-nav button.active svg,
+.admin-nav button:hover svg {
+  color: var(--gold);
+}
+.admin-nav button:not(.active):not(:hover) {
+  color: var(--green-2);
 }
 .admin-side-card {
   margin-top: auto;
