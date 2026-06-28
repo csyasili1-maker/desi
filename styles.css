@@ -297,7 +297,7 @@ p { color: var(--muted); line-height: 1.75; }
 .check-list svg { color: var(--gold); width: 18px; }
 
 .products-head { display: flex; justify-content: space-between; gap: 20px; align-items: end; margin-bottom: 26px; }
-.products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; }
 .product-card {
   background: white;
   border: 1px solid var(--line);

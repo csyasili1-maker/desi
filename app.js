@@ -1,14 +1,8 @@
 const money = value => `₹${value.toLocaleString("en-IN")}`;
 
 const defaultProducts = [
-  { id: "a2-cow-ghee", name: "A2 Cow Ghee", type: "Cow Ghee (A2)", price: 799, old: 899, size: "500 ml", badge: "Best Seller", img: "assets/ghee-jar.png", rating: 4.8, reviews: 256, desc: "Made from indigenous cow milk and slow-cooked using the Bilona method for aroma, nutrition, and purity." },
-  { id: "buffalo-ghee", name: "Buffalo Ghee", type: "Buffalo Ghee", price: 699, old: 799, size: "500 ml", badge: "Rich Aroma", img: "assets/ghee-lineup.png", rating: 4.7, reviews: 189, desc: "Thick, creamy buffalo ghee with a deep traditional flavor for sweets, rice, and everyday cooking." },
-  { id: "bilona-ghee", name: "Bilona Ghee", type: "Hand Churned", price: 999, old: 1199, size: "500 ml", badge: "Traditional", img: "assets/ghee-jar.png", rating: 4.9, reviews: 318, desc: "Curd-churned butter simmered patiently in small batches for a naturally grainy texture." },
-  { id: "gir-cow-ghee", name: "Gir Cow Ghee", type: "Premium A2", price: 1199, old: 1399, size: "500 ml", badge: "Premium", img: "assets/ghee-lineup.png", rating: 4.8, reviews: 142, desc: "Premium Gir cow ghee crafted for families who want a pure, golden spoonful every day." },
-  { id: "organic-ghee", name: "Organic Cow Ghee", type: "Organic Ghee", price: 899, old: 1049, size: "500 ml", badge: "Organic", img: "assets/ghee-jar.png", rating: 4.6, reviews: 111, desc: "Clean, fragrant ghee made with carefully sourced milk and no additives." },
-  { id: "combo-pack", name: "Ghee Combo Pack", type: "A2 + Buffalo", price: 1549, old: 1799, size: "500 ml + 500 ml", badge: "Combo", img: "assets/ghee-lineup.png", rating: 4.9, reviews: 221, desc: "A premium tasting combo with A2 cow ghee and buffalo ghee for every kitchen need." },
-  { id: "family-pack", name: "Family Ghee Pack", type: "Value Pack", price: 2799, old: 3199, size: "2 litre", badge: "Value", img: "assets/ghee-jar.png", rating: 4.7, reviews: 96, desc: "Large pack of pure ghee for families, festive cooking, and weekly meal prep." },
-  { id: "pooja-ghee", name: "Pooja Ghee", type: "Lamp & Ritual", price: 349, old: 399, size: "250 ml", badge: "Sacred", img: "assets/ghee-lineup.png", rating: 4.8, reviews: 74, desc: "Clean-burning ghee prepared for daily pooja, festivals, and temple offerings." }
+  { id: "cow-ghee", name: "Cow Ghee", type: "Cow Ghee", price: 799, old: 899, size: "500 ml", badge: "Best Seller", img: "assets/cow-ghee-ee.png", rating: 4.8, reviews: 256, desc: "Pure cow ghee, slow-crafted with an inspired traditional preparation for rich aroma, taste, and purity." },
+  { id: "buffalo-ghee", name: "Buffalo Ghee", type: "Buffalo Ghee", price: 699, old: 799, size: "500 ml", badge: "Rich Aroma", img: "assets/buffalo-ghee-ee.png", rating: 4.7, reviews: 189, desc: "Thick, creamy buffalo ghee with a deep traditional flavor for sweets, rice, and everyday cooking." }
 ];
 
 const defaultHeroSlides = [
@@ -16,23 +10,23 @@ const defaultHeroSlides = [
     image: "assets/hero-ghee-food.png",
     eyebrow: "Premium Indian Ghee",
     title: "Pure Ghee, Slow-Crafted for Indian Homes",
-    copy: "Golden aroma, traditional taste, and everyday nourishment in every spoon of Desi Delights ghee.",
+    copy: "Golden aroma, traditional taste, and everyday nourishment in every spoon of EE Desi Delights ghee.",
     cta: "Shop Ghee",
     link: "#shop"
   },
   {
-    image: "assets/ghee-lineup.png",
-    eyebrow: "Cow, Buffalo & Bilona",
-    title: "A Complete Ghee Range for Every Kitchen",
-    copy: "Choose A2 cow ghee, buffalo ghee, family packs, pooja ghee, and festive combos made for pure flavor.",
+    image: "assets/buffalo-ghee-ee.png",
+    eyebrow: "Cow & Buffalo Ghee",
+    title: "Two Pure Choices for Every Kitchen",
+    copy: "Choose pure cow ghee or rich buffalo ghee, both slow-crafted for authentic flavor.",
     cta: "View Products",
     link: "#products"
   },
   {
-    image: "assets/ghee-gift-hamper.png",
+    image: "assets/ghee-gift-hamper-ee.png",
     eyebrow: "Festive Bulk Orders",
     title: "Traditional Ghee Gifts with a Premium Finish",
-    copy: "Create memorable wedding, corporate, and festive hampers with Desi Delights green-gold packaging.",
+    copy: "Create memorable wedding, corporate, and festive hampers with EE Desi Delights green-gold packaging.",
     cta: "Bulk Enquiry",
     link: "#bulk"
   }
@@ -41,18 +35,18 @@ const defaultHeroSlides = [
 const defaultSettings = {
   headerLogo: "assets/logo-transparent.png",
   footerLogo: "assets/logo-white.png",
-  brandName: "Desi Delights",
+  brandName: "EE Desi Delights",
   razorpayEnabled: true,
   razorpayKey: "rzp_test_1DP5mmOlF5G5ag",
-  razorpayMerchant: "Desi Delights",
+  razorpayMerchant: "EE Desi Delights",
   razorpayCurrency: "INR",
-  supportPhone: "+91 78930 73167",
-  supportEmail: "hello@desidelights.com",
+  supportPhone: "+91 96666 77434",
+  supportEmail: "eedesidelights@gmail.com",
   address: "Hyderabad, Telangana, India"
 };
 
-let products = JSON.parse(localStorage.getItem("desi_products") || "null") || defaultProducts;
-let heroSlides = JSON.parse(localStorage.getItem("desi_hero_slides") || "null") || defaultHeroSlides;
+let products = JSON.parse(localStorage.getItem("ee_desi_v3_products") || "null") || defaultProducts;
+let heroSlides = JSON.parse(localStorage.getItem("ee_desi_v3_hero_slides") || "null") || defaultHeroSlides;
 
 const sizes = [
   { label: "200 ml", price: 399 },
@@ -63,13 +57,13 @@ const sizes = [
 ];
 
 let state = {
-  cart: JSON.parse(localStorage.getItem("desi_cart") || "[]"),
-  user: JSON.parse(localStorage.getItem("desi_user") || "null"),
-  users: JSON.parse(localStorage.getItem("desi_users") || "[]"),
-  admin: JSON.parse(localStorage.getItem("desi_admin") || "null"),
-  orders: JSON.parse(localStorage.getItem("desi_orders") || "[]"),
-  checkout: JSON.parse(localStorage.getItem("desi_checkout") || "{}"),
-  settings: JSON.parse(localStorage.getItem("desi_settings") || "null") || defaultSettings
+  cart: JSON.parse(localStorage.getItem("ee_desi_v2_cart") || "[]"),
+  user: JSON.parse(localStorage.getItem("ee_desi_v2_user") || "null"),
+  users: JSON.parse(localStorage.getItem("ee_desi_v2_users") || "[]"),
+  admin: JSON.parse(localStorage.getItem("ee_desi_v2_admin") || "null"),
+  orders: JSON.parse(localStorage.getItem("ee_desi_v2_orders") || "[]"),
+  checkout: JSON.parse(localStorage.getItem("ee_desi_v2_checkout") || "{}"),
+  settings: JSON.parse(localStorage.getItem("ee_desi_v3_settings") || "null") || defaultSettings
 };
 
 let heroTimer = null;
@@ -79,15 +73,15 @@ const app = document.getElementById("app");
 const toast = document.getElementById("toast");
 
 function save() {
-  localStorage.setItem("desi_cart", JSON.stringify(state.cart));
-  localStorage.setItem("desi_user", JSON.stringify(state.user));
-  localStorage.setItem("desi_users", JSON.stringify(state.users));
-  localStorage.setItem("desi_admin", JSON.stringify(state.admin));
-  localStorage.setItem("desi_orders", JSON.stringify(state.orders));
-  localStorage.setItem("desi_checkout", JSON.stringify(state.checkout));
-  localStorage.setItem("desi_settings", JSON.stringify(state.settings));
-  localStorage.setItem("desi_products", JSON.stringify(products));
-  localStorage.setItem("desi_hero_slides", JSON.stringify(heroSlides));
+  localStorage.setItem("ee_desi_v2_cart", JSON.stringify(state.cart));
+  localStorage.setItem("ee_desi_v2_user", JSON.stringify(state.user));
+  localStorage.setItem("ee_desi_v2_users", JSON.stringify(state.users));
+  localStorage.setItem("ee_desi_v2_admin", JSON.stringify(state.admin));
+  localStorage.setItem("ee_desi_v2_orders", JSON.stringify(state.orders));
+  localStorage.setItem("ee_desi_v2_checkout", JSON.stringify(state.checkout));
+  localStorage.setItem("ee_desi_v3_settings", JSON.stringify(state.settings));
+  localStorage.setItem("ee_desi_v3_products", JSON.stringify(products));
+  localStorage.setItem("ee_desi_v3_hero_slides", JSON.stringify(heroSlides));
   updateHeader();
   applySiteSettings();
 }
@@ -107,7 +101,7 @@ function applySiteSettings() {
   const footerLogo = document.querySelector(".footer-logo");
   if (headerLogo) headerLogo.src = state.settings.headerLogo || defaultSettings.headerLogo;
   if (footerLogo) footerLogo.src = state.settings.footerLogo || defaultSettings.footerLogo;
-  document.title = `${state.settings.brandName || "Desi Delights"} | Pure Ghee Store`;
+  document.title = `${state.settings.brandName || "EE Desi Delights"} | Pure Ghee Store`;
 }
 
 function upsertUser(user) {
@@ -164,7 +158,7 @@ function renderHome() {
                 <div class="trust-item">${icon("truck")}<b>PAN India</b><span>3-5 day delivery</span></div>
               </div>
             </div>
-            <div class="hero-card"><img src="assets/ghee-jar.png" alt="Desi Delights bottled ghee" /></div>
+            <div class="hero-card"><img src="assets/cow-ghee-ee.png" alt="EE Desi Delights Cow Ghee" /></div>
           </article>
         `).join("")}
         <div class="hero-float"><span>Pure<br>Tradition<br>Every Spoon</span></div>
@@ -172,8 +166,8 @@ function renderHome() {
       </div>
     </section>
     <section class="marquee"><div class="marquee-track">
-      <span>100% Natural Ghee</span><span>Bilona Method</span><span>No Preservatives</span><span>Hyderabad Delivery</span><span>Secure Packaging</span>
-      <span>100% Natural Ghee</span><span>Bilona Method</span><span>No Preservatives</span><span>Hyderabad Delivery</span><span>Secure Packaging</span>
+      <span>100% Natural Ghee</span><span>Inspired traditional preparation</span><span>No Preservatives</span><span>Hyderabad Delivery</span><span>Secure Packaging</span>
+      <span>100% Natural Ghee</span><span>Inspired traditional preparation</span><span>No Preservatives</span><span>Hyderabad Delivery</span><span>Secure Packaging</span>
     </div></section>
     ${features()}
     <section class="section" id="products">
@@ -207,7 +201,7 @@ function startHeroSlider() {
 }
 
 function pageHero(title, copy) {
-  return `<section class="page-hero"><div class="section-inner"><span class="eyebrow">Desi Delights</span><h1>${title}</h1><p>${copy}</p></div></section>`;
+  return `<section class="page-hero"><div class="section-inner"><span class="eyebrow">EE Desi Delights</span><h1>${title}</h1><p>${copy}</p></div></section>`;
 }
 
 function storyBand() {
@@ -217,7 +211,7 @@ function storyBand() {
         <div>
           <span class="eyebrow">Why Our Ghee Feels Different</span>
           <h2>Warm aroma, clean ingredients, and a traditional finish</h2>
-          <p>Milkzen-inspired movement meets Desi Delights tradition: animated content blocks, visual storytelling, and a premium ecommerce journey built around authentic Indian ghee.</p>
+          <p>Milkzen-inspired movement meets EE Desi Delights tradition: animated content blocks, visual storytelling, and a premium ecommerce journey built around authentic Indian ghee.</p>
           <div class="button-row"><a class="btn primary" href="#about">${icon("book-open")} Our Story</a><a class="btn ghost" href="#shipping-policy">Delivery Details</a></div>
         </div>
         <div class="about-img"><img src="assets/hero-ghee-food.png" alt="Ghee served with Indian food" /></div>
@@ -242,13 +236,13 @@ function aboutSection() {
   return `
     <section class="section cream-band" id="about">
       <div class="section-inner split">
-        <div class="about-img"><img src="assets/bilona-process.png" alt="Traditional Bilona ghee making" /></div>
+        <div class="about-img"><img src="assets/traditional-process.png" alt="Inspired traditional ghee preparation" /></div>
         <div>
-          <span class="eyebrow">About Desi Delights</span>
+          <span class="eyebrow">About EE Desi Delights</span>
           <h2>Ghee made the slow, traditional way</h2>
-          <p>Desi Delights is built around one promise: pure tradition in every spoon. Our ghee is prepared through patient heating, careful filtering, and honest packaging so the natural golden aroma stays intact.</p>
+          <p>EE Desi Delights is built around one promise: pure tradition in every spoon. Our ghee is prepared through patient heating, careful filtering, and honest packaging so the natural golden aroma stays intact.</p>
           <ul class="check-list">
-            <li>${icon("check-circle")} Bilona-inspired traditional preparation</li>
+            <li>${icon("check-circle")} Inspired traditional preparation</li>
             <li>${icon("check-circle")} Naturally grainy texture and deep aroma</li>
             <li>${icon("check-circle")} No chemicals, artificial colors, or preservatives</li>
             <li>${icon("check-circle")} Packed fresh in food-safe glass jars</li>
@@ -298,17 +292,17 @@ function bulkSection() {
       <div class="section-inner split">
         <div>
           <span class="eyebrow">Bulk Orders</span><h2>Pure ghee for events, stores, and gifting</h2>
-          <p>Order Desi Delights ghee for weddings, corporate gifts, pooja needs, restaurants, sweet shops, and family functions. Demo bulk enquiry is included for the local site.</p>
+          <p>Order EE Desi Delights ghee for weddings, corporate gifts, pooja needs, restaurants, sweet shops, and family functions. Demo bulk enquiry is included for the local site.</p>
           <div class="button-row"><button class="btn primary" onclick="showToast('Bulk enquiry demo submitted. We will call you shortly.')">${icon("send")} Request Quote</button><a class="btn ghost" href="#shop">Browse Packs</a></div>
         </div>
-        <div class="about-img"><img src="assets/ghee-gift-hamper.png" alt="Desi Delights ghee gift hamper" /></div>
+        <div class="about-img"><img src="assets/ghee-gift-hamper-ee.png" alt="EE Desi Delights Cow Ghee and Buffalo Ghee gift hamper" /></div>
       </div>
     </section>`;
 }
 
 function faqSection() {
   const faqs = [
-    ["Is Desi Delights ghee preservative-free?", "Yes. The demo content presents every ghee product as free from preservatives, artificial colors, and chemicals."],
+    ["Is EE Desi Delights ghee preservative-free?", "Yes. The demo content presents every ghee product as free from preservatives, artificial colors, and chemicals."],
     ["Do you deliver outside Hyderabad?", "Yes, the checkout demo supports Hyderabad and PAN India delivery."],
     ["Can I pay with Razorpay?", "Yes. This site includes a Razorpay demo flow with a local fallback success order if the test script is unavailable."],
     ["Can the address be detected automatically?", "Yes. Use the location button during checkout. Browser permission is required, and reverse geocoding is attempted for demo autofill."]
@@ -320,7 +314,7 @@ function renderShop() {
   app.innerHTML = `
     <section class="section">
       <div class="section-inner products-head">
-        <div><span class="eyebrow">Shop</span><h2>All Desi Delights Ghee</h2><p>Choose from cow ghee, buffalo ghee, Bilona ghee, family packs, and ritual ghee.</p></div>
+        <div><span class="eyebrow">Shop</span><h2>EE Desi Delights Ghee</h2><p>Choose from Cow Ghee and Buffalo Ghee.</p></div>
         <select id="sortProducts"><option value="featured">Featured</option><option value="low">Price: Low to High</option><option value="high">Price: High to Low</option></select>
       </div>
       <div class="section-inner products-grid" id="shopGrid">${products.map(productCard).join("")}</div>
@@ -341,15 +335,14 @@ function renderProduct(id) {
         <div>
           <div class="gallery-main"><span class="tag">${product.badge}</span><img id="mainProductImage" src="${product.img}" alt="${product.name}" /></div>
           <div class="thumbs">
-            <img src="assets/ghee-jar.png" onclick="setMainImage(this.src)" alt="Ghee jar" />
-            <img src="assets/ghee-lineup.png" onclick="setMainImage(this.src)" alt="Ghee lineup" />
-            <img src="assets/brand-kit.png" onclick="setMainImage(this.src)" alt="Brand packaging" />
+            <img src="assets/cow-ghee-ee.png" onclick="setMainImage(this.src)" alt="Cow Ghee" />
+            <img src="assets/buffalo-ghee-ee.png" onclick="setMainImage(this.src)" alt="Buffalo Ghee" />
             <img src="${product.img}" onclick="setMainImage(this.src)" alt="${product.name}" />
           </div>
         </div>
         <div class="detail-info">
           <h1>${product.name}</h1>
-          <p class="detail-sub">Made with Bilona Method | 100% Pure & Natural</p>
+          <p class="detail-sub">Inspired traditional preparation | 100% Pure & Natural</p>
           <div class="rating">★★★★★ ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
           <div class="detail-price" id="detailPrice">${money(product.price)}</div>
           <small>(Inclusive of all taxes)</small>
@@ -378,7 +371,7 @@ function renderProduct(id) {
             <p>${product.name} is crafted for homes that value purity, taste, and traditional Indian cooking. Use it over hot rice, dal, rotis, sweets, and pooja preparations.</p>
             <ul class="check-list"><li>${icon("check-circle")} Rich in natural aroma</li><li>${icon("check-circle")} Supports authentic taste</li><li>${icon("check-circle")} No additives or preservatives</li></ul>
           </div>
-          <div class="method-card">${icon("cooking-pot")}<div><h3>Bilona Method</h3><p>The traditional process churns curd into butter and slowly cooks it to create pure, aromatic ghee.</p></div></div>
+          <div class="method-card">${icon("cooking-pot")}<div><h3>Inspired traditional preparation</h3><p>The traditional process churns curd into butter and slowly cooks it to create pure, aromatic ghee.</p></div></div>
         </div>
       </div>
     </section>
@@ -392,7 +385,7 @@ function renderCart() {
     <section class="cart-page">
       <div class="section-inner"><span class="eyebrow">Cart</span><h2>Your Ghee Cart</h2></div>
       <div class="cart-grid" style="margin-top:24px">
-        <div>${items.length ? items.map(item => cartItem(item)).join("") : `<div class="checkout-box"><h3>Your cart is empty</h3><p>Add pure Desi Delights ghee to continue.</p><a class="btn primary" href="#shop">Shop Now</a></div>`}</div>
+        <div>${items.length ? items.map(item => cartItem(item)).join("") : `<div class="checkout-box"><h3>Your cart is empty</h3><p>Add pure EE Desi Delights ghee to continue.</p><a class="btn primary" href="#shop">Shop Now</a></div>`}</div>
         <aside class="summary-box">${summaryHtml(totals)}<a class="btn primary" style="width:100%;margin-top:18px" href="#checkout">${icon("lock")} Checkout</a></aside>
       </div>
     </section>`;
@@ -510,7 +503,7 @@ function renderDashboard() {
 
 function renderAboutPage() {
   app.innerHTML = `
-    ${pageHero("About Desi Delights", "A premium Indian ghee brand built on purity, traditional methods, and honest packaging.")}
+    ${pageHero("About EE Desi Delights", "A premium Indian ghee brand built on purity, traditional methods, and honest packaging.")}
     ${aboutSection()}
     ${processSection()}
     <section class="section">
@@ -528,11 +521,11 @@ function renderAboutPage() {
 
 function renderBulkPage() {
   app.innerHTML = `
-    ${pageHero("Bulk Ghee Orders", "Wedding gifts, festive hampers, restaurants, pooja supplies, and corporate gifting with Desi Delights.")}
+    ${pageHero("Bulk Ghee Orders", "Wedding gifts, festive hampers, restaurants, pooja supplies, and corporate gifting with EE Desi Delights.")}
     ${bulkSection()}
     <section class="section cream-band">
       <div class="section-inner split">
-        <div class="about-img"><img src="assets/ghee-gift-hamper.png" alt="Premium ghee gifting hamper" /></div>
+        <div class="about-img"><img src="assets/ghee-gift-hamper-ee.png" alt="EE Desi Delights Cow Ghee and Buffalo Ghee gift hamper" /></div>
         <div>
           <span class="eyebrow">Bulk Categories</span><h2>Built for gifting and food service</h2>
           <ul class="check-list">
@@ -563,12 +556,12 @@ function renderContactPage() {
           <button class="btn primary" type="submit" style="margin-top:18px">${icon("send")} Submit</button>
         </form>
         <div>
-          <span class="eyebrow">Reach Desi Delights</span><h2>Hyderabad based, PAN India ready</h2>
-          <p><b>Phone:</b> +91 78930 73167</p>
-          <p><b>Email:</b> hello@desidelights.com</p>
+          <span class="eyebrow">Reach EE Desi Delights</span><h2>Hyderabad based, PAN India ready</h2>
+          <p><b>Phone:</b> +91 96666 77434</p>
+          <p><b>Email:</b> eedesidelights@gmail.com</p>
           <p><b>Address:</b> Hyderabad, Telangana, India</p>
           <p><b>Hours:</b> Mon - Sun, 9:00 AM - 9:00 PM</p>
-          <div class="button-row"><a class="btn gold" href="https://wa.me/917893073167" target="_blank">${icon("message-circle")} WhatsApp</a><a class="btn ghost" href="#shop">Shop Now</a></div>
+          <div class="button-row"><a class="btn gold" href="https://wa.me/919666677434" target="_blank">${icon("message-circle")} WhatsApp</a><a class="btn ghost" href="#shop">Shop Now</a></div>
         </div>
       </div>
     </section>`;
@@ -582,7 +575,7 @@ function renderPolicyPage(type) {
   const pages = {
     "shipping-policy": {
       title: "Shipping & Delivery Policy",
-      copy: "Demo shipping rules for Desi Delights ghee orders across Hyderabad and PAN India.",
+      copy: "Demo shipping rules for EE Desi Delights ghee orders across Hyderabad and PAN India.",
       points: [
         "Hyderabad delivery is estimated in 2-3 working days after order confirmation.",
         "PAN India standard delivery is estimated in 3-5 working days depending on the pincode.",
@@ -606,13 +599,13 @@ function renderPolicyPage(type) {
       points: [
         "This local demo stores login, cart, and order information in your browser localStorage.",
         "Location access is optional and used only to autofill checkout address fields.",
-        "No real payment or private data is sent to a Desi Delights backend in this static demo.",
+        "No real payment or private data is sent to an EE Desi Delights backend in this static demo.",
         "Razorpay is loaded only for the demo payment popup experience."
       ]
     },
     terms: {
       title: "Terms & Conditions",
-      copy: "Demo ecommerce terms for using the Desi Delights local website.",
+      copy: "Demo ecommerce terms for using the EE Desi Delights local website.",
       points: [
         "Product prices, stock, delivery timelines, and offers are demo content.",
         "The Razorpay key is a test/demo integration and not a live merchant setup.",
@@ -639,7 +632,7 @@ function renderAdminLogin() {
   app.innerHTML = `
     <section class="admin-auth-screen">
       <div class="admin-auth-brand">
-        <img src="${state.settings.headerLogo || "assets/logo-transparent.png"}" alt="Desi Delights" />
+        <img src="${state.settings.headerLogo || "assets/logo-transparent.png"}" alt="EE Desi Delights" />
         <span>Admin Control Center</span>
       </div>
       <form class="admin-login checkout-box" onsubmit="adminLogin(event)">
@@ -666,7 +659,7 @@ function renderAdmin() {
     <section class="admin-page">
       <aside class="admin-sidebar">
         <div class="admin-side-brand">
-          <img src="${state.settings.footerLogo || "assets/logo-white.png"}" alt="Desi Delights" />
+          <img src="${state.settings.footerLogo || "assets/logo-white.png"}" alt="EE Desi Delights" />
           <span>Store Admin</span>
         </div>
         <nav class="admin-nav">
@@ -686,7 +679,7 @@ function renderAdmin() {
       <div class="admin-main">
         <div class="admin-topbar">
           <div>
-            <span class="eyebrow">Desi Delights Admin</span>
+            <span class="eyebrow">EE Desi Delights Admin</span>
             <h2 id="adminPageTitle">Control Center</h2>
             <p>Manage ghee products, users, orders, images, and Razorpay settings.</p>
           </div>
@@ -731,13 +724,13 @@ function adminSeo() {
   const keywords = [
     ["pure ghee in Hyderabad", 93, "High intent local keyword"],
     ["A2 cow ghee online", 89, "Strong ecommerce search"],
-    ["bilona ghee Hyderabad", 91, "Premium traditional ghee intent"],
+    ["traditional ghee Hyderabad", 91, "Premium traditional ghee intent"],
     ["best cow ghee in Telangana", 86, "Regional discovery keyword"],
     ["organic ghee online India", 82, "National delivery keyword"],
     ["buffalo ghee near me", 78, "Local product query"]
   ];
   const checks = [
-    ["Meta title", "Optimized", "Desi Delights | Pure Ghee Store"],
+    ["Meta title", "Optimized", "EE Desi Delights | Pure Ghee Store"],
     ["Product content", "Strong", `${products.length} ghee products with keyword-rich descriptions`],
     ["Image alt text", "Good", "Product and brand images include readable alt text"],
     ["Local SEO", "Ready", "Hyderabad, Telangana and PAN India delivery signals included"],
@@ -747,7 +740,7 @@ function adminSeo() {
   return `
     <section class="admin-panel seo-panel">
       <div class="admin-panel-head">
-        <div><span class="eyebrow">Client SEO Report</span><h3>Search Visibility Score</h3><p>Demo SEO health report for Desi Delights ghee website.</p></div>
+        <div><span class="eyebrow">Client SEO Report</span><h3>Search Visibility Score</h3><p>Demo SEO health report for EE Desi Delights ghee website.</p></div>
         <span class="admin-pill live">93% Optimized</span>
       </div>
       <div class="seo-hero">
@@ -778,7 +771,7 @@ function adminSeo() {
       </div>
       <div class="seo-recommend">
         <h3>Next Growth Suggestions</h3>
-        <p>Add monthly blog posts for “how to identify pure ghee,” “benefits of bilona ghee,” and “best ghee for Indian cooking” to improve organic traffic further.</p>
+        <p>Add monthly blog posts for “how to identify pure ghee,” “benefits of traditional ghee,” and “best ghee for Indian cooking” to improve organic traffic further.</p>
       </div>
     </section>`;
 }
@@ -919,7 +912,7 @@ function adminLogin(event) {
   const email = document.getElementById("adminEmail").value.trim();
   const password = document.getElementById("adminPassword").value;
   if (email === "admin@desidelights.com" && password === "admin123") {
-    state.admin = { email, name: "Desi Delights Admin", loginAt: new Date().toISOString() };
+    state.admin = { email, name: "EE Desi Delights Admin", loginAt: new Date().toISOString() };
     save();
     showToast("Admin login successful");
     if (location.hash === "#admin") {
@@ -946,7 +939,7 @@ function adminLogout() {
 
 function addAdminProduct() {
   const id = `ghee-${Date.now()}`;
-  products.unshift({ id, name: "New Ghee Product", type: "Premium Ghee", price: 499, old: 599, size: "500 ml", badge: "New", img: "assets/ghee-jar.png", rating: 4.8, reviews: 0, desc: "Write product description from admin panel." });
+  products.unshift({ id, name: "New Ghee Product", type: "Premium Ghee", price: 499, old: 599, size: "500 ml", badge: "New", img: "assets/cow-ghee-ee.png", rating: 4.8, reviews: 0, desc: "Write product description from admin panel." });
   save();
   document.getElementById("adminContent").innerHTML = adminProducts();
   refreshIcons();
@@ -1127,7 +1120,7 @@ function switchTab(btn, tab) {
   document.querySelectorAll(".tab-buttons button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   const copy = {
-    "Description": "Desi Delights ghee is crafted for homes that value purity, taste, and traditional Indian cooking.",
+    "Description": "EE Desi Delights ghee is crafted for homes that value purity, taste, and traditional Indian cooking.",
     "Benefits": "Rich aroma, naturally grainy texture, smooth cooking performance, and a clean traditional taste.",
     "Ingredients": "Pure milk fat from quality cow or buffalo milk. No preservatives, no artificial flavors, no chemicals.",
     "How It's Made": "Curd is churned, butter is separated, and the butter is slowly simmered until golden and aromatic.",
@@ -1189,7 +1182,7 @@ function placeOrder(e) {
     key: state.settings.razorpayKey || defaultSettings.razorpayKey,
     amount: totals.total * 100,
     currency: state.settings.razorpayCurrency || "INR",
-    name: state.settings.razorpayMerchant || state.settings.brandName || "Desi Delights",
+    name: state.settings.razorpayMerchant || state.settings.brandName || "EE Desi Delights",
     description: "Demo ghee order payment",
     image: "assets/logo-wide.png",
     handler: () => completeOrder("Razorpay Demo Paid"),
@@ -1286,7 +1279,7 @@ function initReveals() {
 document.getElementById("menuBtn").addEventListener("click", () => document.getElementById("mainNav").classList.toggle("open"));
 document.getElementById("accountBtn").addEventListener("click", () => state.user ? location.hash = "#dashboard" : openAuth("login"));
 document.getElementById("searchBtn").addEventListener("click", () => {
-  const term = prompt("Search Desi Delights ghee products");
+  const term = prompt("Search EE Desi Delights ghee products");
   if (!term) return;
   location.hash = "#shop";
   setTimeout(() => {
