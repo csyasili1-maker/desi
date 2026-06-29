@@ -137,6 +137,7 @@ function productCard(product) {
 }
 
 function renderHome() {
+  if (window.matchMedia("(max-width: 700px)").matches) activeHero = 0;
   app.innerHTML = `
     <section class="hero">
       <div class="hero-slider">
@@ -149,7 +150,7 @@ function renderHome() {
               <p>${slide.copy}</p>
               <div class="hero-actions">
                 <a class="btn primary" href="${slide.link}">${icon("shopping-bag")} ${slide.cta}</a>
-                <a class="btn gold" href="#product/a2-cow-ghee">${icon("sparkles")} View Best Seller</a>
+                <a class="btn gold" href="#product/cow-ghee">${icon("sparkles")} View Best Seller</a>
               </div>
               <div class="trust-row">
                 <div class="trust-item">${icon("leaf")}<b>100% Natural</b><span>No additives</span></div>
@@ -197,6 +198,7 @@ function setHeroSlide(index) {
 function startHeroSlider() {
   clearInterval(heroTimer);
   if (!document.querySelector(".hero-slider")) return;
+  if (window.matchMedia("(max-width: 700px)").matches) return;
   heroTimer = setInterval(() => setHeroSlide((activeHero + 1) % heroSlides.length), 5200);
 }
 
@@ -1236,6 +1238,7 @@ function logout() {
 
 function route() {
   clearInterval(heroTimer);
+  closeMobileMenu();
   const hash = location.hash.replace("#", "") || "home";
   document.body.classList.toggle("admin-shell", hash === "admin" || hash === "admin-login");
   if (hash.startsWith("product/")) renderProduct(hash.split("/")[1]);
@@ -1276,7 +1279,35 @@ function initReveals() {
   document.querySelectorAll("[data-reveal]").forEach(el => observer.observe(el));
 }
 
-document.getElementById("menuBtn").addEventListener("click", () => document.getElementById("mainNav").classList.toggle("open"));
+const menuBtn = document.getElementById("menuBtn");
+const mainNav = document.getElementById("mainNav");
+
+function setMobileMenu(open) {
+  mainNav.classList.toggle("open", open);
+  menuBtn.setAttribute("aria-expanded", String(open));
+  menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+}
+
+function closeMobileMenu() {
+  setMobileMenu(false);
+}
+
+menuBtn.addEventListener("click", event => {
+  event.stopPropagation();
+  setMobileMenu(!mainNav.classList.contains("open"));
+});
+mainNav.addEventListener("click", event => {
+  if (event.target.closest("a")) closeMobileMenu();
+});
+document.addEventListener("click", event => {
+  if (mainNav.classList.contains("open") && !mainNav.contains(event.target) && !menuBtn.contains(event.target)) closeMobileMenu();
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeMobileMenu();
+});
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 1050) closeMobileMenu();
+});
 document.getElementById("accountBtn").addEventListener("click", () => state.user ? location.hash = "#dashboard" : openAuth("login"));
 document.getElementById("searchBtn").addEventListener("click", () => {
   const term = prompt("Search EE Desi Delights ghee products");

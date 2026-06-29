@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=8" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   </head>
@@ -21,10 +21,11 @@
       <span>Preparing pure ghee...</span>
     </div>
     <div class="top-strip">
-      <span><i data-lucide="leaf"></i> 100% Natural</span>
-      <span><i data-lucide="shield-check"></i> No Preservatives</span>
-      <span><i data-lucide="flask-conical-off"></i> No Chemicals</span>
-      <span><i data-lucide="map-pin"></i> Delivering in Hyderabad and PAN India</span>
+      <span class="mobile-top-message"><i data-lucide="leaf"></i> Pure Ghee • No Preservatives</span>
+      <span class="top-detail"><i data-lucide="leaf"></i> 100% Natural</span>
+      <span class="top-detail"><i data-lucide="shield-check"></i> No Preservatives</span>
+      <span class="top-detail"><i data-lucide="flask-conical-off"></i> No Chemicals</span>
+      <span class="top-detail"><i data-lucide="map-pin"></i> Delivering in Hyderabad and PAN India</span>
     </div>
 
     <header class="site-header">
@@ -32,7 +33,7 @@
         <img src="assets/logo-transparent.png" alt="EE Desi Delights logo" />
         <span>Pure Tradition in Every Spoon</span>
       </a>
-      <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu"><i data-lucide="menu"></i></button>
+      <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav"><i data-lucide="menu"></i></button>
       <nav id="mainNav">
         <a href="#home">Home</a>
         <a href="#shop">Shop</a>
@@ -86,7 +87,7 @@
         </div>
       </div>
       <div class="footer-bottom">© 2026 EE Desi Delights. All Rights Reserved. Made for demo ecommerce.</div>
-      <a class="whatsapp" href="https://wa.me/919666677434" target="_blank" rel="noreferrer"><i data-lucide="message-circle"></i> Chat on WhatsApp</a>
+      <a class="whatsapp" href="https://wa.me/919666677434" target="_blank" rel="noreferrer" aria-label="Chat with EE Desi Delights on WhatsApp" title="Chat on WhatsApp"><i data-lucide="message-circle"></i><span>Chat on WhatsApp</span></a>
     </footer>
 
     <dialog id="authDialog" class="auth-dialog">
@@ -112,6 +113,6 @@
     </dialog>
 
     <div id="toast" class="toast"></div>
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=7"></script>
   </body>
 </html>
