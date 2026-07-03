@@ -42,11 +42,16 @@ const defaultSettings = {
   razorpayCurrency: "INR",
   supportPhone: "+91 96666 77434",
   supportEmail: "eedesidelights@gmail.com",
-  address: "Hyderabad, Telangana, India"
+  address: "Hyderabad, Telangana, India",
+  shippingCharge: 0,
+  packagingCharge: 20,
+  couponCode: "GHEE10",
+  couponDiscount: 10
 };
 
 let products = JSON.parse(localStorage.getItem("ee_desi_v3_products") || "null") || defaultProducts;
 let heroSlides = JSON.parse(localStorage.getItem("ee_desi_v3_hero_slides") || "null") || defaultHeroSlides;
+const savedSettings = JSON.parse(localStorage.getItem("ee_desi_v3_settings") || "null") || {};
 
 const sizeTiers = [
   { label: "200 ml", multiplier: .5 },
@@ -63,7 +68,7 @@ let state = {
   admin: JSON.parse(localStorage.getItem("ee_desi_v2_admin") || "null"),
   orders: JSON.parse(localStorage.getItem("ee_desi_v2_orders") || "[]"),
   checkout: JSON.parse(localStorage.getItem("ee_desi_v2_checkout") || "{}"),
-  settings: JSON.parse(localStorage.getItem("ee_desi_v3_settings") || "null") || defaultSettings
+  settings: { ...defaultSettings, ...savedSettings }
 };
 
 let heroTimer = null;
@@ -205,18 +210,37 @@ function icon(name) {
 }
 
 function sizeOptionsFor(product) {
+  const basePrice = Number(product?.price || 0);
+  const savedOptions = Array.isArray(product?.sizeOptions)
+    ? product.sizeOptions
+        .map(option => ({ label: String(option.label || "").trim(), price: Number(option.price || 0) }))
+        .filter(option => option.label && option.price > 0)
+    : [];
+  if (savedOptions.length) return savedOptions;
   return sizeTiers.map(tier => ({
     label: tier.label,
-    price: tier.label === "500 ml" ? product.price : Math.max(1, Math.round((product.price * tier.multiplier + 1) / 50) * 50 - 1)
+    price: tier.label === "500 ml" ? basePrice : Math.max(1, Math.round((basePrice * tier.multiplier + 1) / 50) * 50 - 1)
   }));
 }
 
+function defaultSizeOption(product) {
+  const options = sizeOptionsFor(product);
+  return options.find(option => option.label === product?.size) || options.find(option => option.label === "500 ml") || options[0] || { label: product?.size || "500 ml", price: product?.price || 0 };
+}
+
+function sizeRangeText(product) {
+  const options = sizeOptionsFor(product);
+  if (!options.length) return product?.size || "500 ml";
+  if (options.length === 1) return options[0].label;
+  return `${options[0].label} to ${options[options.length - 1].label}`;
+}
+
 function lineSize(item, product) {
-  return item.size || product?.size || "500 ml";
+  return item.size || defaultSizeOption(product).label;
 }
 
 function lineUnitPrice(item, product) {
-  return Number(item.unitPrice) || product?.price || 0;
+  return Number(item.unitPrice) || defaultSizeOption(product).price || 0;
 }
 
 function lineKey(item, product) {
@@ -225,6 +249,7 @@ function lineKey(item, product) {
 
 function productCard(product) {
   const productSizes = sizeOptionsFor(product);
+  const defaultOption = defaultSizeOption(product);
   return `
     <article class="product-card">
       <a class="img-wrap" href="#product/${product.id}">
@@ -234,15 +259,15 @@ function productCard(product) {
       <div class="product-body">
         <div class="rating">★★★★★ <span>${product.rating} (${product.reviews})</span></div>
         <a href="#product/${product.id}" class="product-title">${product.name}</a>
-        <div class="product-meta">${product.type} • 200 ml to 5 Litre</div>
-        <div class="card-purchase" data-qty="1" data-size="500 ml" data-unit-price="${product.price}">
+        <div class="product-meta">${product.type} • ${sizeRangeText(product)}</div>
+        <div class="card-purchase" data-qty="1" data-size="${escapeAttr(defaultOption.label)}" data-unit-price="${defaultOption.price}">
           <label class="card-size-label">Select Size
             <select class="card-size-select" aria-label="Select size for ${product.name}" onchange="changeCardSize(this)">
-              ${productSizes.map(option => `<option value="${option.price}" data-size="${option.label}" ${option.label === "500 ml" ? "selected" : ""}>${option.label} — ${money(option.price)}</option>`).join("")}
+              ${productSizes.map(option => `<option value="${option.price}" data-size="${escapeAttr(option.label)}" ${option.label === defaultOption.label ? "selected" : ""}>${option.label} — ${money(option.price)}</option>`).join("")}
             </select>
           </label>
           <div class="price-row">
-            <div><span class="price">${money(product.price)}</span><small class="price-quantity">for 1 jar</small></div>
+            <div><span class="price">${money(defaultOption.price)}</span><small class="price-quantity">for 1 jar</small></div>
             <div class="card-quantity"><small>Quantity</small><div class="card-qty">
               <button type="button" onclick="changeCardQty(this, -1)" aria-label="Decrease ${product.name} quantity">−</button>
               <span>1</span>
@@ -445,7 +470,7 @@ function renderShop() {
       <div class="section-inner products-grid" id="shopGrid">${products.map(productCard).join("")}</div>
     </section>`;
   document.getElementById("sortProducts").addEventListener("change", e => {
-    const sorted = [...products].sort((a, b) => e.target.value === "low" ? a.price - b.price : e.target.value === "high" ? b.price - a.price : 0);
+    const sorted = [...products].sort((a, b) => e.target.value === "low" ? defaultSizeOption(a).price - defaultSizeOption(b).price : e.target.value === "high" ? defaultSizeOption(b).price - defaultSizeOption(a).price : 0);
     document.getElementById("shopGrid").innerHTML = sorted.map(productCard).join("");
     refreshIcons();
   });
@@ -454,9 +479,10 @@ function renderShop() {
 function renderProduct(id) {
   const product = products.find(p => p.id === id) || products[0];
   const productSizes = sizeOptionsFor(product);
+  const defaultOption = defaultSizeOption(product);
   app.innerHTML = `
     <section class="product-detail">
-      <div class="breadcrumb">Home › Shop › ${product.type} › ${product.size}</div>
+      <div class="breadcrumb">Home › Shop › ${product.type} › ${defaultOption.label}</div>
       <div class="detail-grid">
         <div>
           <div class="gallery-main"><span class="tag">${product.badge}</span><img id="mainProductImage" src="${product.img}" alt="${product.name}" /></div>
@@ -470,7 +496,7 @@ function renderProduct(id) {
           <h1>${product.name}</h1>
           <p class="detail-sub">Inspired traditional preparation | 100% Pure & Natural</p>
           <div class="rating">★★★★★ ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
-          <div class="detail-price" id="detailPrice" data-unit-price="${product.price}">${money(product.price)}</div>
+          <div class="detail-price" id="detailPrice" data-unit-price="${defaultOption.price}">${money(defaultOption.price)}</div>
           <small>(Inclusive of all taxes)</small>
           <p>${product.desc}</p>
           <div class="assurance">
@@ -479,7 +505,7 @@ function renderProduct(id) {
             <div>${icon("shield-check")}<span>No preservatives</span></div>
           </div>
           <h4>Select Size</h4>
-          <div class="size-grid">${productSizes.map((s, i) => `<button class="size-btn ${i === 1 ? "active" : ""}" data-size="${s.label}" onclick="selectSize(this, ${s.price})">${s.label}<br>${money(s.price)}</button>`).join("")}</div>
+          <div class="size-grid">${productSizes.map(s => `<button class="size-btn ${s.label === defaultOption.label ? "active" : ""}" data-size="${escapeAttr(s.label)}" onclick="selectSize(this, ${s.price})">${s.label}<br>${money(s.price)}</button>`).join("")}</div>
           <h4>Quantity</h4>
           <div class="qty-row">
             <div class="qty-control"><button onclick="changeDetailQty(-1)">−</button><span id="detailQty">1</span><button onclick="changeDetailQty(1)">+</button></div>
@@ -533,9 +559,11 @@ function cartTotals() {
     const product = products.find(p => p.id === item.id);
     return sum + (product ? lineUnitPrice(item, product) * item.qty : 0);
   }, 0);
-  const shipping = subtotal > 1999 || subtotal === 0 ? 0 : 80;
-  const packing = subtotal ? 20 : 0;
-  const discount = state.checkout.coupon === "GHEE10" ? Math.round(subtotal * .1) : 0;
+  const shipping = subtotal ? Number(state.settings.shippingCharge || 0) : 0;
+  const packing = subtotal ? Number(state.settings.packagingCharge || 0) : 0;
+  const activeCoupon = String(state.settings.couponCode || "").trim().toUpperCase();
+  const discountPercent = Math.max(0, Number(state.settings.couponDiscount || 0));
+  const discount = activeCoupon && state.checkout.coupon === activeCoupon ? Math.round(subtotal * (discountPercent / 100)) : 0;
   return { subtotal, shipping, packing, discount, total: subtotal + shipping + packing - discount };
 }
 
@@ -550,18 +578,20 @@ function summaryHtml(totals) {
 }
 
 function couponHtml() {
-  const applied = state.checkout.coupon === "GHEE10";
+  const activeCoupon = String(state.settings.couponCode || "").trim().toUpperCase();
+  const discountPercent = Math.max(0, Number(state.settings.couponDiscount || 0));
+  const applied = activeCoupon && state.checkout.coupon === activeCoupon;
   return `<div class="coupon-block">
     <h4>Have a coupon?</h4>
     <div class="coupon">
       <input id="couponCode" aria-label="Coupon code" autocomplete="off" maxlength="20" placeholder="Enter coupon code" value="${state.checkout.coupon || ""}" onkeydown="if(event.key === 'Enter'){event.preventDefault(); applyCoupon();}" />
       <button class="${applied ? "remove-coupon" : ""}" onclick="${applied ? "removeCoupon()" : "applyCoupon()"}" type="button">${applied ? "Remove" : "Apply"}</button>
     </div>
-    <small class="coupon-hint ${applied ? "applied" : ""}">${applied ? `${icon("badge-check")} GHEE10 applied — 10% off` : "Use GHEE10 for 10% off"}</small>
+    <small class="coupon-hint ${applied ? "applied" : ""}">${applied ? `${icon("badge-check")} ${activeCoupon} applied — ${discountPercent}% off` : activeCoupon ? `Use ${activeCoupon} for ${discountPercent}% off` : "Coupon offers are currently off"}</small>
   </div>`;
 }
 
-function productWhatsAppLink(product, qty, size = product.size, unitPrice = product.price) {
+function productWhatsAppLink(product, qty, size = defaultSizeOption(product).label, unitPrice = defaultSizeOption(product).price) {
   const message = `Hello EE Desi Delights, I would like to order:\n${product.name} (${size})\nQuantity: ${qty}\nTotal: ${money(unitPrice * qty)}`;
   return `https://wa.me/919666677434?text=${encodeURIComponent(message)}`;
 }
@@ -933,10 +963,54 @@ function adminSeo() {
     </section>`;
 }
 
+function adminSizeRowHtml(productId, option = {}, index = Date.now(), isDefault = false) {
+  return `
+    <div class="admin-size-row">
+      <label>Size / Label<input class="admin-size-label" value="${escapeAttr(option.label || "")}" placeholder="Example: 500 ml" /></label>
+      <label>Selling Price<input class="admin-size-price" type="number" min="1" value="${Number(option.price || "") || ""}" placeholder="Example: 799" /></label>
+      <label class="admin-default-size"><input class="admin-size-default" type="radio" name="p-default-size-${escapeAttr(productId)}" ${isDefault ? "checked" : ""} /> Default</label>
+      <button class="admin-mini-btn danger" type="button" onclick="removeAdminSizeRow(this)">Remove</button>
+    </div>`;
+}
+
+function adminProductSizeEditor(product) {
+  const options = sizeOptionsFor(product);
+  const defaultOption = defaultSizeOption(product);
+  return `
+    <div class="admin-price-editor">
+      <div class="admin-price-editor-head">
+        <b>Size & Price Options</b>
+        <span>Edit, add, or remove the sizes shown on the product cards.</span>
+      </div>
+      <div class="admin-size-list" id="p-size-list-${product.id}">
+        ${options.map((option, index) => adminSizeRowHtml(product.id, option, index, option.label === defaultOption.label)).join("")}
+      </div>
+      <button class="admin-mini-btn" type="button" onclick="addAdminSizeRow('${product.id}')">${icon("plus")} Add Size / Price</button>
+    </div>`;
+}
+
+function adminPricingSettings() {
+  return `
+    <div class="admin-price-settings">
+      <div class="admin-price-editor-head">
+        <b>Cart Charges & Coupon</b>
+        <span>These values update the cart and checkout totals.</span>
+      </div>
+      <div class="admin-settings-grid compact-grid">
+        <div class="field"><label>Shipping Charge</label><input id="set-shippingCharge" type="number" min="0" value="${Number(state.settings.shippingCharge || 0)}" /></div>
+        <div class="field"><label>Packaging Charge</label><input id="set-packagingCharge" type="number" min="0" value="${Number(state.settings.packagingCharge || 0)}" /></div>
+        <div class="field"><label>Coupon Code</label><input id="set-couponCode" value="${escapeAttr(state.settings.couponCode || "")}" placeholder="Example: GHEE10" /></div>
+        <div class="field"><label>Coupon Discount %</label><input id="set-couponDiscount" type="number" min="0" max="100" value="${Number(state.settings.couponDiscount || 0)}" /></div>
+      </div>
+      <button class="btn primary" type="button" onclick="savePricingSettings()">${icon("save")} Save Cart Pricing</button>
+    </div>`;
+}
+
 function adminProducts() {
   return `
     <section class="admin-panel">
-      <div class="admin-panel-head"><div><span class="eyebrow">Catalog Manager</span><h3>Product Editor</h3><p>Edit products, prices, badges, and images from one place.</p></div><button class="btn gold" onclick="addAdminProduct()">${icon("plus")} Add Product</button></div>
+      <div class="admin-panel-head"><div><span class="eyebrow">Catalog Manager</span><h3>Product Editor</h3><p>Edit products, badges, images, and every size-wise price from one place.</p></div><button class="btn gold" onclick="addAdminProduct()">${icon("plus")} Add Product</button></div>
+      ${adminPricingSettings()}
       <div class="admin-product-grid">
         ${products.map(product => `
           <article class="admin-product-card">
@@ -946,21 +1020,18 @@ function adminProducts() {
             </div>
             <div class="admin-product-form">
               <div class="admin-inline">
-                <input id="p-name-${product.id}" value="${escapeAttr(product.name)}" />
-                <input id="p-badge-${product.id}" value="${escapeAttr(product.badge)}" />
+                <label class="admin-field">Product Name<input id="p-name-${product.id}" value="${escapeAttr(product.name)}" /></label>
+                <label class="admin-field">Badge<input id="p-badge-${product.id}" value="${escapeAttr(product.badge)}" /></label>
               </div>
               <textarea id="p-desc-${product.id}">${product.desc}</textarea>
               <div class="admin-inline">
-              <input id="p-price-${product.id}" type="number" value="${product.price}" />
-              <input id="p-old-${product.id}" type="number" value="${product.old || product.price}" />
+                <label class="admin-field">Product Type<input id="p-type-${product.id}" value="${escapeAttr(product.type)}" /></label>
+                <label class="admin-field">MRP / Old Price<input id="p-old-${product.id}" type="number" value="${product.old || defaultSizeOption(product).price}" /></label>
               </div>
-              <div class="admin-inline">
-              <input id="p-type-${product.id}" value="${escapeAttr(product.type)}" />
-              <input id="p-size-${product.id}" value="${escapeAttr(product.size)}" />
-              </div>
+              ${adminProductSizeEditor(product)}
             </div>
             <div class="admin-product-actions">
-              <span class="admin-pill">${money(product.price)}</span>
+              <span class="admin-pill">${defaultSizeOption(product).label}<br>${money(defaultSizeOption(product).price)}</span>
               <button class="btn primary" onclick="saveAdminProduct('${product.id}')">${icon("save")} Save Product</button>
               <button class="btn ghost danger" onclick="deleteAdminProduct('${product.id}')">${icon("trash-2")} Delete</button>
             </div>
@@ -1096,23 +1167,100 @@ function adminLogout() {
 
 function addAdminProduct() {
   const id = `ghee-${Date.now()}`;
-  products.unshift({ id, name: "New Ghee Product", type: "Premium Ghee", price: 499, old: 599, size: "500 ml", badge: "New", img: "assets/cow-ghee-ee.png", rating: 4.8, reviews: 0, desc: "Write product description from admin panel." });
+  products.unshift({
+    id,
+    name: "New Ghee Product",
+    type: "Premium Ghee",
+    price: 499,
+    old: 599,
+    size: "500 ml",
+    sizeOptions: [
+      { label: "200 ml", price: 249 },
+      { label: "500 ml", price: 499 },
+      { label: "1 Litre", price: 949 }
+    ],
+    badge: "New",
+    img: "assets/cow-ghee-ee.png",
+    rating: 4.8,
+    reviews: 0,
+    desc: "Write product description from admin panel."
+  });
   save();
   document.getElementById("adminContent").innerHTML = adminProducts();
   refreshIcons();
 }
 
+function addAdminSizeRow(id) {
+  const list = document.getElementById(`p-size-list-${id}`);
+  if (!list) return;
+  const existingRows = list.querySelectorAll(".admin-size-row").length;
+  list.insertAdjacentHTML("beforeend", adminSizeRowHtml(id, { label: "", price: "" }, Date.now(), existingRows === 0));
+  refreshIcons();
+}
+
+function removeAdminSizeRow(button) {
+  const row = button.closest(".admin-size-row");
+  const list = button.closest(".admin-size-list");
+  if (!row || !list) return;
+  if (list.querySelectorAll(".admin-size-row").length <= 1) {
+    showToast("Keep at least one size and price");
+    return;
+  }
+  const wasDefault = row.querySelector(".admin-size-default")?.checked;
+  row.remove();
+  if (wasDefault) {
+    const nextDefault = list.querySelector(".admin-size-default");
+    if (nextDefault) nextDefault.checked = true;
+  }
+}
+
+function collectAdminSizeOptions(id) {
+  const product = products.find(p => p.id === id);
+  const list = document.getElementById(`p-size-list-${id}`);
+  const rows = [...(list?.querySelectorAll(".admin-size-row") || [])];
+  const options = [];
+  let defaultIndex = -1;
+  rows.forEach(row => {
+    const label = row.querySelector(".admin-size-label")?.value.trim();
+    const price = Number(row.querySelector(".admin-size-price")?.value || 0);
+    if (!label || price <= 0) return;
+    if (row.querySelector(".admin-size-default")?.checked) defaultIndex = options.length;
+    options.push({ label, price });
+  });
+  if (!options.length) {
+    showToast("Please add at least one valid size and price");
+    return null;
+  }
+  if (defaultIndex < 0) defaultIndex = Math.max(0, options.findIndex(option => option.label === product?.size));
+  return { options, defaultOption: options[defaultIndex] || options[0] };
+}
+
+function savePricingSettings() {
+  state.settings.shippingCharge = Number(document.getElementById("set-shippingCharge")?.value || 0);
+  state.settings.packagingCharge = Number(document.getElementById("set-packagingCharge")?.value || 0);
+  state.settings.couponCode = (document.getElementById("set-couponCode")?.value || "").trim().toUpperCase();
+  state.settings.couponDiscount = Math.max(0, Math.min(100, Number(document.getElementById("set-couponDiscount")?.value || 0)));
+  if (state.checkout.coupon && state.checkout.coupon !== state.settings.couponCode) delete state.checkout.coupon;
+  save();
+  showToast("Cart pricing saved");
+}
+
 function saveAdminProduct(id) {
   const product = products.find(p => p.id === id);
   if (!product) return;
+  const sizeData = collectAdminSizeOptions(id);
+  if (!sizeData) return;
   product.name = document.getElementById(`p-name-${id}`).value;
   product.desc = document.getElementById(`p-desc-${id}`).value;
-  product.price = Number(document.getElementById(`p-price-${id}`).value || 0);
-  product.old = Number(document.getElementById(`p-old-${id}`).value || product.price);
   product.type = document.getElementById(`p-type-${id}`).value;
-  product.size = document.getElementById(`p-size-${id}`).value;
   product.badge = document.getElementById(`p-badge-${id}`).value;
+  product.sizeOptions = sizeData.options;
+  product.size = sizeData.defaultOption.label;
+  product.price = sizeData.defaultOption.price;
+  product.old = Number(document.getElementById(`p-old-${id}`).value || product.price);
   save();
+  document.getElementById("adminContent").innerHTML = adminProducts();
+  refreshIcons();
   showToast("Product saved");
 }
 
@@ -1233,8 +1381,9 @@ function dashTab(tab, btn) {
 function addToCart(id, qty = 1, selection = {}) {
   const product = products.find(p => p.id === id);
   if (!product) return;
-  const size = selection.size || product.size;
-  const unitPrice = Number(selection.unitPrice) || product.price;
+  const defaultOption = defaultSizeOption(product);
+  const size = selection.size || defaultOption.label;
+  const unitPrice = Number(selection.unitPrice) || defaultOption.price;
   const key = `${id}::${size}`;
   const existing = state.cart.find(item => lineKey(item, product) === key);
   if (existing) existing.qty += qty;
@@ -1276,9 +1425,10 @@ function addCardSelection(button, id) {
   const purchase = button.closest(".card-purchase");
   const product = products.find(p => p.id === id);
   if (!purchase || !product) return;
+  const defaultOption = defaultSizeOption(product);
   const qty = Math.max(1, Number(purchase.dataset.qty || 1));
-  const size = purchase.dataset.size || product.size;
-  const unitPrice = Number(purchase.dataset.unitPrice) || product.price;
+  const size = purchase.dataset.size || defaultOption.label;
+  const unitPrice = Number(purchase.dataset.unitPrice) || defaultOption.price;
   addToCart(id, qty, { size, unitPrice });
   button.innerHTML = `${icon("check")} Added ${qty}`;
   const actions = purchase.querySelector(".post-add-actions");
@@ -1362,15 +1512,17 @@ function switchTab(btn, tab) {
 function applyCoupon() {
   const input = document.getElementById("couponCode");
   const code = input?.value.trim().toUpperCase() || "";
-  if (code === "GHEE10") {
+  const activeCoupon = String(state.settings.couponCode || "").trim().toUpperCase();
+  const discountPercent = Math.max(0, Number(state.settings.couponDiscount || 0));
+  if (activeCoupon && code === activeCoupon) {
     if (location.hash === "#checkout") collectCheckout();
     state.checkout.coupon = code;
     save();
-    showToast("Coupon applied: 10% off");
+    showToast(`Coupon applied: ${discountPercent}% off`);
     refreshCouponView();
   } else {
     if (input) input.focus();
-    showToast("Invalid coupon. Try GHEE10");
+    showToast(activeCoupon ? `Invalid coupon. Try ${activeCoupon}` : "Coupon offers are currently off");
   }
 }
 
