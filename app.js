@@ -48,12 +48,12 @@ const defaultSettings = {
 let products = JSON.parse(localStorage.getItem("ee_desi_v3_products") || "null") || defaultProducts;
 let heroSlides = JSON.parse(localStorage.getItem("ee_desi_v3_hero_slides") || "null") || defaultHeroSlides;
 
-const sizes = [
-  { label: "200 ml", price: 399 },
-  { label: "500 ml", price: 799 },
-  { label: "1 Litre", price: 1499 },
-  { label: "2 Litre", price: 2799 },
-  { label: "5 Litre", price: 6499 }
+const sizeTiers = [
+  { label: "200 ml", multiplier: .5 },
+  { label: "500 ml", multiplier: 1 },
+  { label: "1 Litre", multiplier: 1.875 },
+  { label: "2 Litre", multiplier: 3.5 },
+  { label: "5 Litre", multiplier: 8.125 }
 ];
 
 let state = {
@@ -104,6 +104,94 @@ function applySiteSettings() {
   document.title = `${state.settings.brandName || "EE Desi Delights"} | Pure Ghee Store`;
 }
 
+const launchScreenDate = "2026-07-03";
+const launchScreenSeenKey = "ee_desi_launch_seen_date";
+
+function indiaDateKey(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date);
+  const byType = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}`;
+}
+
+function showLaunchScreen() {
+  const today = indiaDateKey();
+  const previewLaunch = new URLSearchParams(location.search).get("launch") === "preview";
+  if (!previewLaunch && (today !== launchScreenDate || localStorage.getItem(launchScreenSeenKey) === today)) return;
+  if (document.querySelector(".launch-screen")) return;
+
+  const screen = document.createElement("div");
+  screen.className = "launch-screen";
+  screen.setAttribute("role", "dialog");
+  screen.setAttribute("aria-modal", "true");
+  screen.setAttribute("aria-labelledby", "launchTitle");
+  screen.innerHTML = `
+    <div class="launch-card">
+      <span class="launch-shine"></span>
+      <img class="launch-logo" src="${state.settings.headerLogo || defaultSettings.headerLogo}" alt="${state.settings.brandName || "EE Desi Delights"}" />
+      <span class="launch-eyebrow">Grand Launch Today</span>
+      <h2 id="launchTitle">Welcome to ${state.settings.brandName || "EE Desi Delights"}</h2>
+      <p>Pure cow ghee and buffalo ghee are ready for your home. Tap Launch to enter with a little celebration.</p>
+      <button class="launch-btn" type="button">${icon("sparkles")} Launch Website</button>
+      <small>Showing for today only</small>
+    </div>`;
+
+  document.body.appendChild(screen);
+  document.body.classList.add("launch-locked");
+  refreshIcons();
+
+  screen.querySelector(".launch-btn").addEventListener("click", event => {
+    event.currentTarget.disabled = true;
+    localStorage.setItem(launchScreenSeenKey, today);
+    screen.classList.add("launch-screen--celebrating");
+    launchConfetti();
+    setTimeout(() => {
+      screen.classList.add("launch-screen--closing");
+      setTimeout(() => {
+        screen.remove();
+        document.body.classList.remove("launch-locked");
+      }, 450);
+    }, 1500);
+  });
+}
+
+function launchConfetti() {
+  const oldStage = document.querySelector(".launch-confetti-stage");
+  if (oldStage) oldStage.remove();
+
+  const stage = document.createElement("div");
+  stage.className = "launch-confetti-stage";
+  const colors = ["#d4af37", "#0f3d2e", "#23a455", "#fff7d1", "#7a4e2d", "#f7f2e6"];
+  const pieces = 96;
+  for (let index = 0; index < pieces; index++) {
+    const piece = document.createElement("span");
+    const spread = window.innerWidth < 700 ? window.innerWidth * 1.05 : window.innerWidth * .78;
+    const x = (Math.random() - .5) * spread;
+    const y = window.innerHeight * (.55 + Math.random() * .58);
+    const rotate = (Math.random() * 900 - 450).toFixed(0);
+    const duration = 1450 + Math.random() * 1000;
+    const delay = Math.random() * 180;
+    piece.className = `launch-confetti-piece${index % 4 === 0 ? " round" : ""}`;
+    piece.style.cssText = `
+      --x: ${x.toFixed(0)}px;
+      --y: ${y.toFixed(0)}px;
+      --r: ${rotate}deg;
+      --d: ${duration.toFixed(0)}ms;
+      --c: ${colors[index % colors.length]};
+      left: ${34 + Math.random() * 32}%;
+      animation-delay: ${delay.toFixed(0)}ms;
+    `;
+    stage.appendChild(piece);
+  }
+
+  document.body.appendChild(stage);
+  setTimeout(() => stage.remove(), 2800);
+}
+
 function upsertUser(user) {
   const email = (user.email || "").toLowerCase();
   if (!email) return;
@@ -117,7 +205,27 @@ function icon(name) {
   return `<i data-lucide="${name}"></i>`;
 }
 
+function sizeOptionsFor(product) {
+  return sizeTiers.map(tier => ({
+    label: tier.label,
+    price: tier.label === "500 ml" ? product.price : Math.max(1, Math.round((product.price * tier.multiplier + 1) / 50) * 50 - 1)
+  }));
+}
+
+function lineSize(item, product) {
+  return item.size || product?.size || "500 ml";
+}
+
+function lineUnitPrice(item, product) {
+  return Number(item.unitPrice) || product?.price || 0;
+}
+
+function lineKey(item, product) {
+  return item.key || `${item.id}::${lineSize(item, product)}`;
+}
+
 function productCard(product) {
+  const productSizes = sizeOptionsFor(product);
   return `
     <article class="product-card">
       <a class="img-wrap" href="#product/${product.id}">
@@ -127,10 +235,26 @@ function productCard(product) {
       <div class="product-body">
         <div class="rating">★★★★★ <span>${product.rating} (${product.reviews})</span></div>
         <a href="#product/${product.id}" class="product-title">${product.name}</a>
-        <div class="product-meta">${product.type} • ${product.size}</div>
-        <div class="price-row">
-          <div><span class="price">${money(product.price)}</span></div>
-          <button class="mini-cart" onclick="addToCart('${product.id}')" aria-label="Add ${product.name}">${icon("shopping-cart")}</button>
+        <div class="product-meta">${product.type} • 200 ml to 5 Litre</div>
+        <div class="card-purchase" data-qty="1" data-size="500 ml" data-unit-price="${product.price}">
+          <label class="card-size-label">Select Size
+            <select class="card-size-select" aria-label="Select size for ${product.name}" onchange="changeCardSize(this)">
+              ${productSizes.map(option => `<option value="${option.price}" data-size="${option.label}" ${option.label === "500 ml" ? "selected" : ""}>${option.label} — ${money(option.price)}</option>`).join("")}
+            </select>
+          </label>
+          <div class="price-row">
+            <div><span class="price">${money(product.price)}</span><small class="price-quantity">for 1 jar</small></div>
+            <div class="card-quantity"><small>Quantity</small><div class="card-qty">
+              <button type="button" onclick="changeCardQty(this, -1)" aria-label="Decrease ${product.name} quantity">−</button>
+              <span>1</span>
+              <button type="button" onclick="changeCardQty(this, 1)" aria-label="Increase ${product.name} quantity">+</button>
+            </div></div>
+          </div>
+          <button class="btn primary card-add" type="button" onclick="addCardSelection(this, '${product.id}')">${icon("shopping-cart")} Add to Cart</button>
+          <div class="post-add-actions hidden">
+            <a class="btn ghost" href="#cart">Proceed</a>
+            <a class="btn whatsapp-order product-whatsapp" href="#" target="_blank" rel="noreferrer">${icon("message-circle")} WhatsApp</a>
+          </div>
         </div>
       </div>
     </article>`;
@@ -330,6 +454,7 @@ function renderShop() {
 
 function renderProduct(id) {
   const product = products.find(p => p.id === id) || products[0];
+  const productSizes = sizeOptionsFor(product);
   app.innerHTML = `
     <section class="product-detail">
       <div class="breadcrumb">Home › Shop › ${product.type} › ${product.size}</div>
@@ -346,7 +471,7 @@ function renderProduct(id) {
           <h1>${product.name}</h1>
           <p class="detail-sub">Inspired traditional preparation | 100% Pure & Natural</p>
           <div class="rating">★★★★★ ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
-          <div class="detail-price" id="detailPrice">${money(product.price)}</div>
+          <div class="detail-price" id="detailPrice" data-unit-price="${product.price}">${money(product.price)}</div>
           <small>(Inclusive of all taxes)</small>
           <p>${product.desc}</p>
           <div class="assurance">
@@ -355,11 +480,11 @@ function renderProduct(id) {
             <div>${icon("shield-check")}<span>No preservatives</span></div>
           </div>
           <h4>Select Size</h4>
-          <div class="size-grid">${sizes.map((s, i) => `<button class="size-btn ${i === 1 ? "active" : ""}" onclick="selectSize(this, ${s.price})">${s.label}<br>${money(s.price)}</button>`).join("")}</div>
+          <div class="size-grid">${productSizes.map((s, i) => `<button class="size-btn ${i === 1 ? "active" : ""}" data-size="${s.label}" onclick="selectSize(this, ${s.price})">${s.label}<br>${money(s.price)}</button>`).join("")}</div>
           <h4>Quantity</h4>
           <div class="qty-row">
             <div class="qty-control"><button onclick="changeDetailQty(-1)">−</button><span id="detailQty">1</span><button onclick="changeDetailQty(1)">+</button></div>
-            <button class="btn primary" onclick="addToCart('${product.id}', Number(document.getElementById('detailQty').textContent))">${icon("shopping-cart")} Add to Cart</button>
+            <button class="btn primary" onclick="addDetailToCart('${product.id}')">${icon("shopping-cart")} Add to Cart</button>
             <button class="btn gold" onclick="buyNow('${product.id}')">Buy Now</button>
           </div>
         </div>
@@ -381,14 +506,17 @@ function renderProduct(id) {
 }
 
 function renderCart() {
-  const items = state.cart.map(line => ({ ...line, product: products.find(p => p.id === line.id) })).filter(x => x.product);
+  const items = state.cart.map(line => {
+    const product = products.find(p => p.id === line.id);
+    return product ? { ...line, product, size: lineSize(line, product), unitPrice: lineUnitPrice(line, product), key: lineKey(line, product) } : null;
+  }).filter(Boolean);
   const totals = cartTotals();
   app.innerHTML = `
     <section class="cart-page">
       <div class="section-inner"><span class="eyebrow">Cart</span><h2>Your Ghee Cart</h2></div>
       <div class="cart-grid" style="margin-top:24px">
         <div>${items.length ? items.map(item => cartItem(item)).join("") : `<div class="checkout-box"><h3>Your cart is empty</h3><p>Add pure EE Desi Delights ghee to continue.</p><a class="btn primary" href="#shop">Shop Now</a></div>`}</div>
-        <aside class="summary-box">${summaryHtml(totals)}<a class="btn primary" style="width:100%;margin-top:18px" href="#checkout">${icon("lock")} Checkout</a></aside>
+        <aside class="summary-box">${summaryHtml(totals)}${couponHtml()}<div class="cart-action-row"><a class="btn primary" href="#checkout">${icon("lock")} Proceed</a><a class="btn whatsapp-order" href="${cartWhatsAppLink()}" target="_blank" rel="noreferrer">${icon("message-circle")} WhatsApp</a></div></aside>
       </div>
     </section>`;
 }
@@ -396,15 +524,15 @@ function renderCart() {
 function cartItem(item) {
   return `<div class="cart-item">
     <img src="${item.product.img}" alt="${item.product.name}" />
-    <div><h3>${item.product.name}</h3><p>${item.product.size} • ${money(item.product.price)}</p><div class="line-actions"><div class="qty-control"><button onclick="updateQty('${item.id}', -1)">−</button><span>${item.qty}</span><button onclick="updateQty('${item.id}', 1)">+</button></div><button class="remove-btn" onclick="removeFromCart('${item.id}')">Remove</button></div></div>
-    <strong>${money(item.product.price * item.qty)}</strong>
+    <div><h3>${item.product.name}</h3><p>${item.size} • ${money(item.unitPrice)} each</p><div class="line-actions"><div class="qty-control"><button onclick="updateQty('${item.key}', -1)">−</button><span>${item.qty}</span><button onclick="updateQty('${item.key}', 1)">+</button></div><button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button></div></div>
+    <strong>${money(item.unitPrice * item.qty)}</strong>
   </div>`;
 }
 
 function cartTotals() {
   const subtotal = state.cart.reduce((sum, item) => {
     const product = products.find(p => p.id === item.id);
-    return sum + (product ? product.price * item.qty : 0);
+    return sum + (product ? lineUnitPrice(item, product) * item.qty : 0);
   }, 0);
   const shipping = subtotal > 1999 || subtotal === 0 ? 0 : 80;
   const packing = subtotal ? 20 : 0;
@@ -420,6 +548,33 @@ function summaryHtml(totals) {
     <div class="summary-row"><span>Coupon Discount</span><b>- ${money(totals.discount)}</b></div>
     <div class="summary-row summary-total"><span>Total Amount</span><b>${money(totals.total)}</b></div>
     <small>Inclusive of all taxes</small>`;
+}
+
+function couponHtml() {
+  const applied = state.checkout.coupon === "GHEE10";
+  return `<div class="coupon-block">
+    <h4>Have a coupon?</h4>
+    <div class="coupon">
+      <input id="couponCode" aria-label="Coupon code" autocomplete="off" maxlength="20" placeholder="Enter coupon code" value="${state.checkout.coupon || ""}" onkeydown="if(event.key === 'Enter'){event.preventDefault(); applyCoupon();}" />
+      <button class="${applied ? "remove-coupon" : ""}" onclick="${applied ? "removeCoupon()" : "applyCoupon()"}" type="button">${applied ? "Remove" : "Apply"}</button>
+    </div>
+    <small class="coupon-hint ${applied ? "applied" : ""}">${applied ? `${icon("badge-check")} GHEE10 applied — 10% off` : "Use GHEE10 for 10% off"}</small>
+  </div>`;
+}
+
+function productWhatsAppLink(product, qty, size = product.size, unitPrice = product.price) {
+  const message = `Hello EE Desi Delights, I would like to order:\n${product.name} (${size})\nQuantity: ${qty}\nTotal: ${money(unitPrice * qty)}`;
+  return `https://wa.me/919666677434?text=${encodeURIComponent(message)}`;
+}
+
+function cartWhatsAppLink() {
+  const lines = state.cart.map(item => {
+    const product = products.find(p => p.id === item.id);
+    return product ? `${product.name} (${lineSize(item, product)}) × ${item.qty} = ${money(lineUnitPrice(item, product) * item.qty)}` : "";
+  }).filter(Boolean);
+  const totals = cartTotals();
+  const message = `Hello EE Desi Delights, I would like to place this order:\n${lines.join("\n")}\nTotal: ${money(totals.total)}`;
+  return `https://wa.me/919666677434?text=${encodeURIComponent(message)}`;
 }
 
 function renderCheckout() {
@@ -467,13 +622,14 @@ function renderCheckout() {
             <h3>${icon("shopping-bag")} Order Summary</h3>
             ${state.cart.map(line => {
               const p = products.find(x => x.id === line.id);
-              return `<div class="summary-product"><img src="${p.img}" alt="${p.name}" /><div><b>${p.name}</b><br><small>${p.size}<br>Qty: ${line.qty}</small></div><b>${money(p.price * line.qty)}</b></div>`;
+              const size = lineSize(line, p);
+              const unitPrice = lineUnitPrice(line, p);
+              return `<div class="summary-product"><img src="${p.img}" alt="${p.name}" /><div><b>${p.name}</b><br><small>${size}<br>Qty: ${line.qty}</small></div><b>${money(unitPrice * line.qty)}</b></div>`;
             }).join("")}
             ${summaryHtml(totals)}
           </div>
           <div class="summary-box" style="margin-top:14px">
-            <h3>Apply Coupon</h3>
-            <div class="coupon"><input id="couponCode" placeholder="Try GHEE10" value="${state.checkout.coupon || ""}" /><button onclick="applyCoupon()" type="button">Apply</button></div>
+            ${couponHtml()}
           </div>
           <div class="summary-box" style="margin-top:14px"><h3>Why Shop With Us?</h3><p>Pure ghee, secure packaging, fast delivery, easy returns, and trusted demo checkout.</p></div>
         </aside>
@@ -1075,30 +1231,92 @@ function dashTab(tab, btn) {
   refreshIcons();
 }
 
-function addToCart(id, qty = 1) {
-  const existing = state.cart.find(item => item.id === id);
+function addToCart(id, qty = 1, selection = {}) {
+  const product = products.find(p => p.id === id);
+  if (!product) return;
+  const size = selection.size || product.size;
+  const unitPrice = Number(selection.unitPrice) || product.price;
+  const key = `${id}::${size}`;
+  const existing = state.cart.find(item => lineKey(item, product) === key);
   if (existing) existing.qty += qty;
-  else state.cart.push({ id, qty });
+  else state.cart.push({ id, key, size, unitPrice, qty });
   save();
   showToast("Added to cart");
 }
 
+function updateCardPurchase(purchase) {
+  const qty = Math.max(1, Number(purchase.dataset.qty || 1));
+  const unitPrice = Number(purchase.dataset.unitPrice || 0);
+  purchase.querySelector(".card-qty span").textContent = qty;
+  purchase.querySelector(".price").textContent = money(unitPrice * qty);
+  purchase.querySelector(".price-quantity").textContent = `for ${qty} ${qty === 1 ? "jar" : "jars"}`;
+  purchase.querySelector(".post-add-actions")?.classList.add("hidden");
+  const addButton = purchase.querySelector(".card-add");
+  if (addButton) addButton.innerHTML = `${icon("shopping-cart")} Add to Cart`;
+  refreshIcons();
+}
+
+function changeCardSize(select) {
+  const purchase = select.closest(".card-purchase");
+  const selected = select.options[select.selectedIndex];
+  if (!purchase || !selected) return;
+  purchase.dataset.size = selected.dataset.size;
+  purchase.dataset.unitPrice = selected.value;
+  updateCardPurchase(purchase);
+}
+
+function changeCardQty(button, delta) {
+  const purchase = button.closest(".card-purchase");
+  if (!purchase) return;
+  const qty = Math.max(1, Number(purchase.dataset.qty || 1) + delta);
+  purchase.dataset.qty = qty;
+  updateCardPurchase(purchase);
+}
+
+function addCardSelection(button, id) {
+  const purchase = button.closest(".card-purchase");
+  const product = products.find(p => p.id === id);
+  if (!purchase || !product) return;
+  const qty = Math.max(1, Number(purchase.dataset.qty || 1));
+  const size = purchase.dataset.size || product.size;
+  const unitPrice = Number(purchase.dataset.unitPrice) || product.price;
+  addToCart(id, qty, { size, unitPrice });
+  button.innerHTML = `${icon("check")} Added ${qty}`;
+  const actions = purchase.querySelector(".post-add-actions");
+  const whatsapp = actions?.querySelector(".product-whatsapp");
+  if (whatsapp) whatsapp.href = productWhatsAppLink(product, qty, size, unitPrice);
+  actions?.classList.remove("hidden");
+  refreshIcons();
+}
+
+function detailSelection() {
+  const priceNode = document.getElementById("detailPrice");
+  return {
+    size: document.querySelector(".size-btn.active")?.dataset.size || "500 ml",
+    unitPrice: Number(priceNode?.dataset.unitPrice || 0)
+  };
+}
+
+function addDetailToCart(id) {
+  addToCart(id, Number(document.getElementById("detailQty")?.textContent || 1), detailSelection());
+}
+
 function buyNow(id) {
-  addToCart(id, Number(document.getElementById("detailQty")?.textContent || 1));
+  addDetailToCart(id);
   location.hash = "#checkout";
 }
 
-function updateQty(id, delta) {
-  const item = state.cart.find(x => x.id === id);
+function updateQty(key, delta) {
+  const item = state.cart.find(x => lineKey(x, products.find(p => p.id === x.id)) === key);
   if (!item) return;
   item.qty += delta;
-  if (item.qty <= 0) state.cart = state.cart.filter(x => x.id !== id);
+  if (item.qty <= 0) state.cart = state.cart.filter(x => lineKey(x, products.find(p => p.id === x.id)) !== key);
   save();
   renderCart();
 }
 
-function removeFromCart(id) {
-  state.cart = state.cart.filter(x => x.id !== id);
+function removeFromCart(key) {
+  state.cart = state.cart.filter(x => lineKey(x, products.find(p => p.id === x.id)) !== key);
   save();
   renderCart();
 }
@@ -1110,12 +1328,21 @@ function setMainImage(src) {
 function selectSize(btn, price) {
   document.querySelectorAll(".size-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  document.getElementById("detailPrice").textContent = money(price);
+  document.getElementById("detailPrice").dataset.unitPrice = price;
+  updateDetailPrice();
 }
 
 function changeDetailQty(delta) {
   const node = document.getElementById("detailQty");
   node.textContent = Math.max(1, Number(node.textContent) + delta);
+  updateDetailPrice();
+}
+
+function updateDetailPrice() {
+  const priceNode = document.getElementById("detailPrice");
+  const qty = Number(document.getElementById("detailQty")?.textContent || 1);
+  const unitPrice = Number(priceNode?.dataset.unitPrice || 0);
+  if (priceNode) priceNode.textContent = money(unitPrice * qty);
 }
 
 function switchTab(btn, tab) {
@@ -1134,13 +1361,34 @@ function switchTab(btn, tab) {
 }
 
 function applyCoupon() {
-  const code = document.getElementById("couponCode").value.trim().toUpperCase();
+  const input = document.getElementById("couponCode");
+  const code = input?.value.trim().toUpperCase() || "";
   if (code === "GHEE10") {
+    if (location.hash === "#checkout") collectCheckout();
     state.checkout.coupon = code;
     save();
     showToast("Coupon applied: 10% off");
-    renderCheckout();
-  } else showToast("Use demo coupon GHEE10");
+    refreshCouponView();
+  } else {
+    if (input) input.focus();
+    showToast("Invalid coupon. Try GHEE10");
+  }
+}
+
+function removeCoupon() {
+  delete state.checkout.coupon;
+  save();
+  showToast("Coupon removed");
+  refreshCouponView();
+}
+
+function refreshCouponView() {
+  const scrollPosition = window.scrollY;
+  if (location.hash === "#cart") renderCart();
+  else renderCheckout();
+  refreshIcons();
+  initReveals();
+  requestAnimationFrame(() => window.scrollTo(0, scrollPosition));
 }
 
 async function useLocation() {
@@ -1352,3 +1600,4 @@ window.addEventListener("hashchange", route);
 updateHeader();
 applySiteSettings();
 route();
+showLaunchScreen();
