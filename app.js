@@ -137,7 +137,6 @@ function showLaunchScreen() {
       <h2 id="launchTitle">Welcome to ${state.settings.brandName || "EE Desi Delights"}</h2>
       <p>Pure cow ghee and buffalo ghee are ready for your home. Tap Launch to enter with a little celebration.</p>
       <button class="launch-btn" type="button">${icon("sparkles")} Launch Website</button>
-      <small>Showing for today only</small>
     </div>`;
 
   document.body.appendChild(screen);
