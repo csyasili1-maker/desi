@@ -1101,6 +1101,7 @@ function renderCheckout() {
             ${field("pincode", "Pincode", c.pincode || "", "Enter pincode")}
             ${field("note", "Delivery Note", c.note || "", "Any special instructions?")}
           </div>
+          ${checkoutMapPicker(c)}
           <div style="height:22px"></div>
           <h3>Delivery Options</h3>
           <div class="delivery-options">
@@ -1134,6 +1135,8 @@ function renderCheckout() {
       </div>
     </section>`;
   document.getElementById("checkoutForm").addEventListener("submit", placeOrder);
+  initCheckoutMap();
+  attachLocationEditGuards();
 }
 
 function field(id, label, value, placeholder, wide = false) {
