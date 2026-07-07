@@ -1,5 +1,14 @@
 const money = value => `₹${value.toLocaleString("en-IN")}`;
 
+const SUPABASE_URL = "https://diimzhrdjuhvuquqpqwq.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_a3PMJ9KLw9tUyt8AbSxbZw_3JwGqgk0";
+const SUPABASE_SCRIPT_URLS = [
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js",
+  "https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"
+];
+let supabaseClient = null;
+let cloudReady = false;
+
 const defaultProducts = [
   { id: "cow-ghee", name: "Cow Ghee", type: "Cow Ghee", price: 799, old: 899, size: "500 ml", badge: "Best Seller", img: "assets/cow-ghee-ee.png", rating: 4.8, reviews: 256, desc: "Pure cow ghee, slow-crafted with an inspired traditional preparation for rich aroma, taste, and purity." },
   { id: "buffalo-ghee", name: "Buffalo Ghee", type: "Buffalo Ghee", price: 699, old: 799, size: "500 ml", badge: "Rich Aroma", img: "assets/buffalo-ghee-ee.png", rating: 4.7, reviews: 189, desc: "Thick, creamy buffalo ghee with a deep traditional flavor for sweets, rice, and everyday cooking." }
@@ -76,6 +85,260 @@ let activeHero = 0;
 
 const app = document.getElementById("app");
 const toast = document.getElementById("toast");
+
+function loadExternalScript(src) {
+  return new Promise(resolve => {
+    let settled = false;
+    const done = value => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+    const timer = setTimeout(() => done(false), 1800);
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      existing.addEventListener("load", () => { clearTimeout(timer); done(true); }, { once: true });
+      existing.addEventListener("error", () => { clearTimeout(timer); done(false); }, { once: true });
+      if (window.supabase) { clearTimeout(timer); done(true); }
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => { clearTimeout(timer); done(true); };
+    script.onerror = () => { clearTimeout(timer); done(false); };
+    document.head.appendChild(script);
+  });
+}
+
+async function initSupabase() {
+  for (const src of SUPABASE_SCRIPT_URLS) {
+    if (window.supabase) break;
+    await loadExternalScript(src);
+  }
+  if (!window.supabase || !SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return false;
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  return true;
+}
+
+function dbProductToProduct(row, sizes = []) {
+  const sizeOptions = sizes
+    .filter(size => size.product_id === row.id)
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    .map(size => ({ label: size.label, price: Number(size.price || 0) }));
+  const defaultSize = sizes.find(size => size.product_id === row.id && size.is_default) || sizes.find(size => size.product_id === row.id);
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    price: Number(row.price || defaultSize?.price || 0),
+    old: Number(row.old || row.price || 0),
+    size: row.size || defaultSize?.label || "500 ml",
+    badge: row.badge || "",
+    img: row.img || "assets/cow-ghee-ee.png",
+    rating: Number(row.rating || 4.8),
+    reviews: Number(row.reviews || 0),
+    desc: row.description || "",
+    sizeOptions
+  };
+}
+
+function settingsRowsToObject(rows = []) {
+  return rows.reduce((acc, row) => {
+    acc[row.key] = row.value;
+    return acc;
+  }, {});
+}
+
+function productToDb(product, index = 0) {
+  const defaultOption = defaultSizeOption(product);
+  return {
+    id: product.id,
+    name: product.name,
+    type: product.type,
+    price: Number(defaultOption.price || product.price || 0),
+    old: Number(product.old || defaultOption.price || product.price || 0),
+    size: defaultOption.label || product.size || "500 ml",
+    badge: product.badge || "",
+    img: product.img || "",
+    rating: Number(product.rating || 4.8),
+    reviews: Number(product.reviews || 0),
+    description: product.desc || "",
+    sort_order: index + 1,
+    active: true
+  };
+}
+
+async function loadCloudStore() {
+  if (!supabaseClient) return false;
+  const [productRes, sizeRes, settingsRes, heroRes] = await Promise.all([
+    supabaseClient.from("products").select("*").eq("active", true).order("sort_order", { ascending: true }),
+    supabaseClient.from("product_sizes").select("*").order("sort_order", { ascending: true }),
+    supabaseClient.from("site_settings").select("*"),
+    supabaseClient.from("hero_slides").select("*").eq("active", true).order("sort_order", { ascending: true })
+  ]);
+
+  if (productRes.error || sizeRes.error || settingsRes.error || heroRes.error) {
+    cloudReady = false;
+    return false;
+  }
+
+  if (productRes.data?.length) products = productRes.data.map(row => dbProductToProduct(row, sizeRes.data || []));
+  if (heroRes.data?.length) {
+    heroSlides = heroRes.data.map(row => ({
+      dbId: row.id,
+      image: row.image,
+      eyebrow: row.eyebrow,
+      title: row.title,
+      copy: row.copy,
+      cta: row.cta,
+      link: row.link
+    }));
+  }
+  state.settings = { ...defaultSettings, ...state.settings, ...settingsRowsToObject(settingsRes.data || []) };
+  cloudReady = true;
+  save();
+  return true;
+}
+
+async function saveCloudSettings(keys) {
+  if (!supabaseClient || !cloudReady) return false;
+  const rows = keys.map(key => ({ key, value: state.settings[key] }));
+  const { error } = await supabaseClient.from("site_settings").upsert(rows, { onConflict: "key" });
+  return !error;
+}
+
+async function saveCloudProduct(product) {
+  if (!supabaseClient || !cloudReady) return false;
+  const productIndex = products.findIndex(item => item.id === product.id);
+  const productPayload = productToDb(product, productIndex);
+  const { error: productError } = await supabaseClient.from("products").upsert(productPayload, { onConflict: "id" });
+  if (productError) return false;
+  const { error: deleteError } = await supabaseClient.from("product_sizes").delete().eq("product_id", product.id);
+  if (deleteError) return false;
+  const defaultOption = defaultSizeOption(product);
+  const sizeRows = sizeOptionsFor(product).map((option, index) => ({
+    product_id: product.id,
+    label: option.label,
+    price: Number(option.price || 0),
+    is_default: option.label === defaultOption.label,
+    sort_order: index + 1
+  }));
+  if (!sizeRows.length) return true;
+  const { error: sizeError } = await supabaseClient.from("product_sizes").insert(sizeRows);
+  return !sizeError;
+}
+
+async function deleteCloudProduct(id) {
+  if (!supabaseClient || !cloudReady) return false;
+  const { error } = await supabaseClient.from("products").delete().eq("id", id);
+  return !error;
+}
+
+async function saveCloudHeroSlide(index) {
+  if (!supabaseClient || !cloudReady) return false;
+  const slide = heroSlides[index];
+  const payload = {
+    image: slide.image,
+    eyebrow: slide.eyebrow,
+    title: slide.title,
+    copy: slide.copy,
+    cta: slide.cta,
+    link: slide.link,
+    sort_order: index + 1,
+    active: true
+  };
+  const query = slide.dbId
+    ? supabaseClient.from("hero_slides").update(payload).eq("id", slide.dbId)
+    : supabaseClient.from("hero_slides").insert(payload).select("id").single();
+  const { data, error } = await query;
+  if (!error && data?.id) slide.dbId = data.id;
+  return !error;
+}
+
+async function saveCloudOrder(order) {
+  if (!supabaseClient || !cloudReady) return false;
+  const address = {
+    line1: state.checkout.address,
+    city: state.checkout.city,
+    state: state.checkout.stateName,
+    pincode: state.checkout.pincode
+  };
+  const orderPayload = {
+    id: order.id,
+    customer_name: state.checkout.fullName || state.user?.name || "",
+    customer_email: state.checkout.email || state.user?.email || "",
+    customer_phone: state.checkout.phone || state.user?.phone || "",
+    address,
+    subtotal: order.subtotal,
+    shipping: order.shipping,
+    packing: order.packing,
+    discount: order.discount,
+    total: order.total,
+    coupon: state.checkout.coupon || null,
+    payment_method: order.payment,
+    payment_status: order.payment.includes("Paid") ? "paid" : "pending",
+    razorpay_order_id: order.razorpay_order_id || null,
+    razorpay_payment_id: order.razorpay_payment_id || null,
+    status: order.status
+  };
+  const { error: orderError } = await supabaseClient.from("orders").insert(orderPayload);
+  if (orderError) return false;
+  const itemRows = order.items.map(item => {
+    const product = products.find(p => p.id === item.id);
+    const unitPrice = product ? lineUnitPrice(item, product) : Number(item.unitPrice || 0);
+    return {
+      order_id: order.id,
+      product_id: item.id,
+      product_name: product?.name || item.id,
+      size: product ? lineSize(item, product) : item.size,
+      unit_price: unitPrice,
+      qty: item.qty,
+      line_total: unitPrice * item.qty
+    };
+  });
+  if (!itemRows.length) return true;
+  const { error: itemsError } = await supabaseClient.from("order_items").insert(itemRows);
+  return !itemsError;
+}
+
+async function loadCloudOrders() {
+  if (!supabaseClient || !cloudReady || !state.admin?.cloud) return false;
+  const [ordersRes, itemsRes] = await Promise.all([
+    supabaseClient.from("orders").select("*").order("created_at", { ascending: false }),
+    supabaseClient.from("order_items").select("*")
+  ]);
+  if (ordersRes.error || itemsRes.error) return false;
+  state.orders = (ordersRes.data || []).map(order => {
+    const items = (itemsRes.data || [])
+      .filter(item => item.order_id === order.id)
+      .map(item => ({
+        id: item.product_id,
+        size: item.size,
+        unitPrice: item.unit_price,
+        qty: item.qty
+      }));
+    return {
+      id: order.id,
+      date: new Date(order.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+      items,
+      subtotal: order.subtotal,
+      shipping: order.shipping,
+      packing: order.packing,
+      discount: order.discount,
+      total: order.total,
+      payment: order.payment_method,
+      status: order.status
+    };
+  });
+  save();
+  return true;
+}
+
+async function updateCloudOrderStatus(id, status) {
+  if (!supabaseClient || !cloudReady || !state.admin?.cloud) return false;
+  const { error } = await supabaseClient.from("orders").update({ status }).eq("id", id);
+  return !error;
+}
 
 function save() {
   localStorage.setItem("ee_desi_v2_cart", JSON.stringify(state.cart));
@@ -825,7 +1088,7 @@ function renderAdminLogin() {
       <form class="admin-login checkout-box" onsubmit="adminLogin(event)">
         <span class="eyebrow">Secure Mock Login</span>
         <h2>Admin Panel</h2>
-        <p>Use demo credentials to manage products, images, orders, users, content, and Razorpay settings.</p>
+        <p>Use the Supabase admin email and password to manage live products, prices, images, orders, content, and Razorpay settings.</p>
         <div class="admin-demo-box">
           <b>Email:</b> admin@desidelights.com<br>
           <b>Password:</b> admin123
@@ -1135,10 +1398,34 @@ function readImage(fileInput, callback) {
   reader.readAsDataURL(file);
 }
 
-function adminLogin(event) {
+async function adminLogin(event) {
   event.preventDefault();
   const email = document.getElementById("adminEmail").value.trim();
   const password = document.getElementById("adminPassword").value;
+  if (supabaseClient) {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (!error && data.user) {
+      const { data: profile, error: profileError } = await supabaseClient.from("admin_profiles").select("role").eq("user_id", data.user.id).maybeSingle();
+      if (!profileError && profile) {
+        state.admin = { email, name: "EE Desi Delights Admin", cloud: true, loginAt: new Date().toISOString() };
+        save();
+        await loadCloudStore();
+        await loadCloudOrders();
+        showToast("Admin login successful");
+        if (location.hash === "#admin") {
+          renderAdmin();
+          refreshIcons();
+          initReveals();
+        } else {
+          location.hash = "#admin";
+        }
+        return;
+      }
+      await supabaseClient.auth.signOut();
+      showToast("This Supabase user is not marked as admin");
+      return;
+    }
+  }
   if (email === "admin@desidelights.com" && password === "admin123") {
     state.admin = { email, name: "EE Desi Delights Admin", loginAt: new Date().toISOString() };
     save();
@@ -1153,7 +1440,8 @@ function adminLogin(event) {
   } else showToast("Invalid admin demo login");
 }
 
-function adminLogout() {
+async function adminLogout() {
+  if (supabaseClient) await supabaseClient.auth.signOut();
   state.admin = null;
   save();
   showToast("Admin logged out");
@@ -1165,9 +1453,9 @@ function adminLogout() {
   }
 }
 
-function addAdminProduct() {
+async function addAdminProduct() {
   const id = `ghee-${Date.now()}`;
-  products.unshift({
+  const newProduct = {
     id,
     name: "New Ghee Product",
     type: "Premium Ghee",
@@ -1184,8 +1472,10 @@ function addAdminProduct() {
     rating: 4.8,
     reviews: 0,
     desc: "Write product description from admin panel."
-  });
+  };
+  products.unshift(newProduct);
   save();
+  await saveCloudProduct(newProduct);
   document.getElementById("adminContent").innerHTML = adminProducts();
   refreshIcons();
 }
@@ -1235,17 +1525,18 @@ function collectAdminSizeOptions(id) {
   return { options, defaultOption: options[defaultIndex] || options[0] };
 }
 
-function savePricingSettings() {
+async function savePricingSettings() {
   state.settings.shippingCharge = Number(document.getElementById("set-shippingCharge")?.value || 0);
   state.settings.packagingCharge = Number(document.getElementById("set-packagingCharge")?.value || 0);
   state.settings.couponCode = (document.getElementById("set-couponCode")?.value || "").trim().toUpperCase();
   state.settings.couponDiscount = Math.max(0, Math.min(100, Number(document.getElementById("set-couponDiscount")?.value || 0)));
   if (state.checkout.coupon && state.checkout.coupon !== state.settings.couponCode) delete state.checkout.coupon;
   save();
-  showToast("Cart pricing saved");
+  await saveCloudSettings(["shippingCharge", "packagingCharge", "couponCode", "couponDiscount"]);
+  showToast(cloudReady ? "Cart pricing saved to database" : "Cart pricing saved locally");
 }
 
-function saveAdminProduct(id) {
+async function saveAdminProduct(id) {
   const product = products.find(p => p.id === id);
   if (!product) return;
   const sizeData = collectAdminSizeOptions(id);
@@ -1259,83 +1550,92 @@ function saveAdminProduct(id) {
   product.price = sizeData.defaultOption.price;
   product.old = Number(document.getElementById(`p-old-${id}`).value || product.price);
   save();
+  await saveCloudProduct(product);
   document.getElementById("adminContent").innerHTML = adminProducts();
   refreshIcons();
-  showToast("Product saved");
+  showToast(cloudReady ? "Product saved to database" : "Product saved locally");
 }
 
 function adminUploadProductImage(id, input) {
-  readImage(input, dataUrl => {
+  readImage(input, async dataUrl => {
     const product = products.find(p => p.id === id);
     if (product) product.img = dataUrl;
     save();
+    if (product) await saveCloudProduct(product);
     document.getElementById("adminContent").innerHTML = adminProducts();
     refreshIcons();
-    showToast("Product image updated");
+    showToast(cloudReady ? "Product image saved to database" : "Product image saved locally");
   });
 }
 
-function deleteAdminProduct(id) {
+async function deleteAdminProduct(id) {
   if (!confirm("Delete this product from the demo store?")) return;
   products = products.filter(p => p.id !== id);
   save();
+  await deleteCloudProduct(id);
   document.getElementById("adminContent").innerHTML = adminProducts();
   refreshIcons();
 }
 
-function updateOrderStatus(id, status) {
+async function updateOrderStatus(id, status) {
   const order = state.orders.find(o => o.id === id);
   if (order) order.status = status;
   save();
-  showToast("Order status updated");
+  await updateCloudOrderStatus(id, status);
+  showToast(cloudReady ? "Order status updated in database" : "Order status updated locally");
 }
 
 function adminUploadSettingImage(key, input) {
-  readImage(input, dataUrl => {
+  readImage(input, async dataUrl => {
     state.settings[key] = dataUrl;
     const field = document.getElementById(`set-${key}`);
     if (field) field.value = dataUrl;
     save();
-    showToast("Image setting updated");
+    await saveCloudSettings([key]);
+    showToast(cloudReady ? "Image setting saved to database" : "Image setting saved locally");
   });
 }
 
 function adminUploadHero(index, input) {
-  readImage(input, dataUrl => {
+  readImage(input, async dataUrl => {
     heroSlides[index].image = dataUrl;
     save();
+    await saveCloudHeroSlide(index);
     document.getElementById("adminContent").innerHTML = adminMedia();
     refreshIcons();
-    showToast("Hero image updated");
+    showToast(cloudReady ? "Hero image saved to database" : "Hero image saved locally");
   });
 }
 
-function saveHeroSlide(index) {
+async function saveHeroSlide(index) {
   heroSlides[index].eyebrow = document.getElementById(`h-eyebrow-${index}`).value;
   heroSlides[index].title = document.getElementById(`h-title-${index}`).value;
   heroSlides[index].copy = document.getElementById(`h-copy-${index}`).value;
   heroSlides[index].link = document.getElementById(`h-link-${index}`).value;
   heroSlides[index].cta = document.getElementById(`h-cta-${index}`).value;
   save();
-  showToast("Hero slide saved");
+  await saveCloudHeroSlide(index);
+  showToast(cloudReady ? "Hero slide saved to database" : "Hero slide saved locally");
 }
 
-function saveSiteSettings() {
+async function saveSiteSettings() {
   ["headerLogo", "footerLogo", "brandName", "supportPhone", "supportEmail", "address"].forEach(key => {
     const field = document.getElementById(`set-${key}`);
     if (field) state.settings[key] = field.value;
   });
   save();
-  showToast("Site settings saved");
+  await saveCloudSettings(["headerLogo", "footerLogo", "brandName", "supportPhone", "supportEmail", "address"]);
+  showToast(cloudReady ? "Site settings saved to database" : "Site settings saved locally");
 }
 
-function saveRazorpaySettings() {
+async function saveRazorpaySettings() {
   state.settings.razorpayEnabled = document.getElementById("set-razorpayEnabled").value === "true";
   state.settings.razorpayKey = document.getElementById("set-razorpayKey").value;
   state.settings.razorpayMerchant = document.getElementById("set-razorpayMerchant").value;
   state.settings.razorpayCurrency = document.getElementById("set-razorpayCurrency").value || "INR";
   save();
-  showToast("Razorpay settings saved");
+  await saveCloudSettings(["razorpayEnabled", "razorpayKey", "razorpayMerchant", "razorpayCurrency"]);
+  showToast(cloudReady ? "Razorpay settings saved to database" : "Razorpay settings saved locally");
 }
 
 function testRazorpaySettings() {
@@ -1570,7 +1870,32 @@ function collectCheckout() {
   save();
 }
 
-function placeOrder(e) {
+async function createRazorpayBackendOrder(totals) {
+  const response = await fetch("/api/razorpay-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      cart: state.cart.map(item => ({ id: item.id, size: item.size, qty: item.qty })),
+      coupon: state.checkout.coupon || "",
+      currency: state.settings.razorpayCurrency || "INR",
+      receipt: `EE-${Date.now()}`
+    })
+  });
+  if (!response.ok) throw new Error((await response.json()).error || "Unable to create Razorpay order");
+  return response.json();
+}
+
+async function verifyRazorpayPayment(response) {
+  const verify = await fetch("/api/razorpay-verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(response)
+  });
+  if (!verify.ok) throw new Error((await verify.json()).error || "Payment verification failed");
+  return verify.json();
+}
+
+async function placeOrder(e) {
   e.preventDefault();
   collectCheckout();
   const totals = cartTotals();
@@ -1579,23 +1904,47 @@ function placeOrder(e) {
     completeOrder(payment === "cod" ? "Cash on Delivery" : "Demo Payment");
     return;
   }
+  let gateway;
+  try {
+    gateway = await createRazorpayBackendOrder(totals);
+  } catch (error) {
+    showToast(error.message || "Razorpay backend is not configured yet");
+    return;
+  }
   const options = {
-    key: state.settings.razorpayKey || defaultSettings.razorpayKey,
-    amount: totals.total * 100,
+    key: gateway.keyId || state.settings.razorpayKey || defaultSettings.razorpayKey,
+    amount: gateway.order.amount,
     currency: state.settings.razorpayCurrency || "INR",
     name: state.settings.razorpayMerchant || state.settings.brandName || "EE Desi Delights",
-    description: "Demo ghee order payment",
+    description: "EE Desi Delights order payment",
     image: "assets/logo-wide.png",
-    handler: () => completeOrder("Razorpay Demo Paid"),
+    order_id: gateway.order.id,
+    handler: async response => {
+      try {
+        await verifyRazorpayPayment(response);
+        await completeOrder("Razorpay Paid", response, gateway.totals);
+      } catch (error) {
+        showToast(error.message || "Payment verification failed");
+      }
+    },
     prefill: { name: state.checkout.fullName, email: state.checkout.email, contact: state.checkout.phone },
     theme: { color: "#0F3D2E" },
-    modal: { ondismiss: () => showToast("Payment popup closed. Demo order not placed.") }
+    modal: { ondismiss: () => showToast("Payment popup closed. Order not placed.") }
   };
   new Razorpay(options).open();
 }
 
-function completeOrder(status) {
-  const totals = cartTotals();
+async function completeOrder(status, paymentDetails = {}, verifiedTotals = null) {
+  const totals = verifiedTotals || cartTotals();
+  const orderItems = Array.isArray(verifiedTotals?.lines) && verifiedTotals.lines.length
+    ? verifiedTotals.lines.map(item => ({
+        id: item.id,
+        key: `${item.id}::${item.size}`,
+        size: item.size,
+        unitPrice: item.unitPrice,
+        qty: item.qty
+      }))
+    : [...state.cart];
   if (!state.user) {
     state.user = {
       name: state.checkout.fullName || "Demo Customer",
@@ -1604,13 +1953,23 @@ function completeOrder(status) {
     };
   }
   upsertUser({ ...state.user, phone: state.checkout.phone || state.user.phone });
-  state.orders.unshift({
+  const order = {
     id: `DD-${Date.now().toString().slice(-6)}`,
     date: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
-    items: state.cart,
+    items: orderItems,
+    subtotal: totals.subtotal,
+    shipping: totals.shipping,
+    packing: totals.packing,
+    discount: totals.discount,
     total: totals.total,
+    payment: status,
+    razorpay_order_id: paymentDetails.razorpay_order_id || null,
+    razorpay_payment_id: paymentDetails.razorpay_payment_id || null,
+    razorpay_signature: paymentDetails.razorpay_signature || null,
     status
-  });
+  };
+  await saveCloudOrder(order);
+  state.orders.unshift(order);
   state.cart = [];
   save();
   showToast("Order placed successfully");
@@ -1748,7 +2107,19 @@ window.addEventListener("load", () => {
   setTimeout(() => document.getElementById("preloader")?.classList.add("hide"), 450);
 });
 window.addEventListener("hashchange", route);
-updateHeader();
-applySiteSettings();
-route();
-showLaunchScreen();
+
+async function bootApp() {
+  updateHeader();
+  applySiteSettings();
+  route();
+  showLaunchScreen();
+  await initSupabase();
+  const loaded = await loadCloudStore();
+  if (loaded) {
+    applySiteSettings();
+    route();
+    showToast("Live database connected");
+  }
+}
+
+bootApp();
