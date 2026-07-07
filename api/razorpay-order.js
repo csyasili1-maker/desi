@@ -10,6 +10,10 @@ function cleanSize(value) {
   return String(value || "").trim().slice(0, 60);
 }
 
+function isVisibleSizeLabel(label = "") {
+  return !["200 ml", "200ml"].includes(String(label).trim().toLowerCase());
+}
+
 async function supabaseRest(path) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseSecret = process.env.SUPABASE_SECRET_KEY;
@@ -56,7 +60,7 @@ async function calculateLiveTotals(cart = [], coupon = "") {
   const lines = cleanCart.map(item => {
     const product = products.find(row => row.id === item.id);
     if (!product) throw new Error("A product in the cart is no longer available");
-    const productSizes = sizes.filter(row => row.product_id === item.id);
+    const productSizes = sizes.filter(row => row.product_id === item.id && isVisibleSizeLabel(row.label));
     const selectedSize =
       productSizes.find(row => row.label === item.size) ||
       productSizes.find(row => row.is_default) ||

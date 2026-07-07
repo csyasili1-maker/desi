@@ -251,16 +251,14 @@ delete from public.product_sizes where product_id in ('cow-ghee', 'buffalo-ghee'
 
 insert into public.product_sizes (product_id, label, price, is_default, sort_order)
 values
-  ('cow-ghee', '200 ml', 399, false, 1),
-  ('cow-ghee', '500 ml', 799, true, 2),
-  ('cow-ghee', '1 Litre', 1499, false, 3),
-  ('cow-ghee', '2 Litre', 2799, false, 4),
-  ('cow-ghee', '5 Litre', 6499, false, 5),
-  ('buffalo-ghee', '200 ml', 349, false, 1),
-  ('buffalo-ghee', '500 ml', 699, true, 2),
-  ('buffalo-ghee', '1 Litre', 1299, false, 3),
-  ('buffalo-ghee', '2 Litre', 2449, false, 4),
-  ('buffalo-ghee', '5 Litre', 5699, false, 5);
+  ('cow-ghee', '500 ml', 799, true, 1),
+  ('cow-ghee', '1 Litre', 1499, false, 2),
+  ('cow-ghee', '2 Litre', 2799, false, 3),
+  ('cow-ghee', '5 Litre', 6499, false, 4),
+  ('buffalo-ghee', '500 ml', 699, true, 1),
+  ('buffalo-ghee', '1 Litre', 1299, false, 2),
+  ('buffalo-ghee', '2 Litre', 2449, false, 3),
+  ('buffalo-ghee', '5 Litre', 5699, false, 4);
 
 insert into public.hero_slides (image, eyebrow, title, copy, cta, link, sort_order)
 values

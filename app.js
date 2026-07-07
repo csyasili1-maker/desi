@@ -63,12 +63,15 @@ let heroSlides = JSON.parse(localStorage.getItem("ee_desi_v3_hero_slides") || "n
 const savedSettings = JSON.parse(localStorage.getItem("ee_desi_v3_settings") || "null") || {};
 
 const sizeTiers = [
-  { label: "200 ml", multiplier: .5 },
   { label: "500 ml", multiplier: 1 },
   { label: "1 Litre", multiplier: 1.875 },
   { label: "2 Litre", multiplier: 3.5 },
   { label: "5 Litre", multiplier: 8.125 }
 ];
+
+function isVisibleSizeLabel(label = "") {
+  return !["200 ml", "200ml"].includes(String(label).trim().toLowerCase());
+}
 
 let state = {
   cart: JSON.parse(localStorage.getItem("ee_desi_v2_cart") || "[]"),
@@ -79,6 +82,8 @@ let state = {
   checkout: JSON.parse(localStorage.getItem("ee_desi_v2_checkout") || "{}"),
   settings: { ...defaultSettings, ...savedSettings }
 };
+
+state.cart = state.cart.filter(item => isVisibleSizeLabel(item.size));
 
 if (state.admin && !state.admin.cloud) {
   state.admin = null;
@@ -482,7 +487,7 @@ function sizeOptionsFor(product) {
   const savedOptions = Array.isArray(product?.sizeOptions)
     ? product.sizeOptions
         .map(option => ({ label: String(option.label || "").trim(), price: Number(option.price || 0) }))
-        .filter(option => option.label && option.price > 0)
+        .filter(option => option.label && option.price > 0 && isVisibleSizeLabel(option.label))
     : [];
   if (savedOptions.length) return savedOptions;
   return sizeTiers.map(tier => ({
@@ -910,7 +915,6 @@ function renderCheckout() {
           <div class="payment-options">
             <label class="option active"><span><input type="radio" name="payment" value="razorpay" checked /> UPI / Google Pay / PhonePe / Paytm<br><small>Secure Razorpay checkout</small></span><b>Razorpay</b></label>
             <label class="option"><span><input type="radio" name="payment" value="card" /> Credit / Debit Card<br><small>Visa, Mastercard, RuPay and more</small></span><b>Card</b></label>
-            <label class="option"><span><input type="radio" name="payment" value="cod" /> Cash On Delivery<br><small>Pay when your order is delivered</small></span><b>COD</b></label>
           </div>
           <button class="btn primary" style="width:100%;margin-top:24px" type="submit">${icon("lock")} Proceed to Payment</button>
         </form>
@@ -1455,7 +1459,6 @@ async function addAdminProduct() {
     old: 599,
     size: "500 ml",
     sizeOptions: [
-      { label: "200 ml", price: 249 },
       { label: "500 ml", price: 499 },
       { label: "1 Litre", price: 949 }
     ],
@@ -1891,9 +1894,8 @@ async function placeOrder(e) {
   e.preventDefault();
   collectCheckout();
   const totals = cartTotals();
-  const payment = document.querySelector("input[name='payment']:checked")?.value || "razorpay";
-  if (payment === "cod" || !state.settings.razorpayEnabled || typeof Razorpay === "undefined") {
-    completeOrder(payment === "cod" ? "Cash on Delivery" : "Demo Payment");
+  if (!state.settings.razorpayEnabled || typeof Razorpay === "undefined") {
+    showToast("Online payment is not available right now");
     return;
   }
   let gateway;
