@@ -1,4 +1,4 @@
-const money = value => `Ã¢â€šÂ¹${value.toLocaleString("en-IN")}`;
+const money = value => `${String.fromCharCode(8377)}${Number(value || 0).toLocaleString("en-IN")}`;
 
 const SUPABASE_URL = "https://diimzhrdjuhvuquqpqwq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_a3PMJ9KLw9tUyt8AbSxbZw_3JwGqgk0";
@@ -530,19 +530,19 @@ function productCard(product) {
         <img src="${product.img}" alt="${product.name}" />
       </a>
       <div class="product-body">
-        <div class="rating">Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦ <span>${product.rating} (${product.reviews})</span></div>
+        <div class="rating">&#9733;&#9733;&#9733;&#9733;&#9733; <span>${product.rating} (${product.reviews})</span></div>
         <a href="#product/${product.id}" class="product-title">${product.name}</a>
-        <div class="product-meta">${product.type} Ã¢â‚¬Â¢ ${sizeRangeText(product)}</div>
+        <div class="product-meta">${product.type} &bull; ${sizeRangeText(product)}</div>
         <div class="card-purchase" data-qty="1" data-size="${escapeAttr(defaultOption.label)}" data-unit-price="${defaultOption.price}">
           <label class="card-size-label">Select Size
             <select class="card-size-select" aria-label="Select size for ${product.name}" onchange="changeCardSize(this)">
-              ${productSizes.map(option => `<option value="${option.price}" data-size="${escapeAttr(option.label)}" ${option.label === defaultOption.label ? "selected" : ""}>${option.label} Ã¢â‚¬â€ ${money(option.price)}</option>`).join("")}
+              ${productSizes.map(option => `<option value="${option.price}" data-size="${escapeAttr(option.label)}" ${option.label === defaultOption.label ? "selected" : ""}>${option.label} &mdash; ${money(option.price)}</option>`).join("")}
             </select>
           </label>
           <div class="price-row">
             <div><span class="price">${money(defaultOption.price)}</span><small class="price-quantity">for 1 jar</small></div>
             <div class="card-quantity"><small>Quantity</small><div class="card-qty">
-              <button type="button" onclick="changeCardQty(this, -1)" aria-label="Decrease ${product.name} quantity">Ã¢Ë†â€™</button>
+              <button type="button" onclick="changeCardQty(this, -1)" aria-label="Decrease ${product.name} quantity">&minus;</button>
               <span>1</span>
               <button type="button" onclick="changeCardQty(this, 1)" aria-label="Increase ${product.name} quantity">+</button>
             </div></div>
@@ -703,7 +703,7 @@ function reviewsSection() {
           <div class="stat-card"><b>0</b><span>Preservatives</span></div>
         </div>
         <div class="reviews-grid" style="margin-top:20px">
-          ${["Pure and authentic aroma.", "Perfect grainy texture.", "Packaging was neat and safe.", "Best ghee for dal and rice."].map((r, i) => `<div class="review-card"><div class="rating">Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦</div><h3>${r}</h3><p>${["Priyanka R.", "Rajesh M.", "Anitha K.", "Sandeep V."][i]} Ã¢â‚¬Â¢ Verified Buyer</p></div>`).join("")}
+          ${["Pure and authentic aroma.", "Perfect grainy texture.", "Packaging was neat and safe.", "Best ghee for dal and rice."].map((r, i) => `<div class="review-card"><div class="rating">&#9733;&#9733;&#9733;&#9733;&#9733;</div><h3>${r}</h3><p>${["Priyanka R.", "Rajesh M.", "Anitha K.", "Sandeep V."][i]} &bull; Verified Buyer</p></div>`).join("")}
         </div>
       </div>
     </section>`;
@@ -755,7 +755,7 @@ function renderProduct(id) {
   const defaultOption = defaultSizeOption(product);
   app.innerHTML = `
     <section class="product-detail">
-      <div class="breadcrumb">Home Ã¢â‚¬Âº Shop Ã¢â‚¬Âº ${product.type} Ã¢â‚¬Âº ${defaultOption.label}</div>
+      <div class="breadcrumb">Home &rsaquo; Shop &rsaquo; ${product.type} &rsaquo; ${defaultOption.label}</div>
       <div class="detail-grid">
         <div>
           <div class="gallery-main"><span class="tag">${product.badge}</span><img id="mainProductImage" src="${product.img}" alt="${product.name}" /></div>
@@ -768,7 +768,7 @@ function renderProduct(id) {
         <div class="detail-info">
           <h1>${product.name}</h1>
           <p class="detail-sub">Inspired traditional preparation | 100% Pure & Natural</p>
-          <div class="rating">Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦ ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
+          <div class="rating">&#9733;&#9733;&#9733;&#9733;&#9733; ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
           <div class="detail-price" id="detailPrice" data-unit-price="${defaultOption.price}">${money(defaultOption.price)}</div>
           <small>(Inclusive of all taxes)</small>
           <p>${product.desc}</p>
@@ -781,7 +781,7 @@ function renderProduct(id) {
           <div class="size-grid">${productSizes.map(s => `<button class="size-btn ${s.label === defaultOption.label ? "active" : ""}" data-size="${escapeAttr(s.label)}" onclick="selectSize(this, ${s.price})">${s.label}<br>${money(s.price)}</button>`).join("")}</div>
           <h4>Quantity</h4>
           <div class="qty-row">
-            <div class="qty-control"><button onclick="changeDetailQty(-1)">Ã¢Ë†â€™</button><span id="detailQty">1</span><button onclick="changeDetailQty(1)">+</button></div>
+            <div class="qty-control"><button onclick="changeDetailQty(-1)">&minus;</button><span id="detailQty">1</span><button onclick="changeDetailQty(1)">+</button></div>
             <button class="btn primary" onclick="addDetailToCart('${product.id}')">${icon("shopping-cart")} Add to Cart</button>
             <button class="btn gold" onclick="buyNow('${product.id}')">Buy Now</button>
           </div>
@@ -822,7 +822,7 @@ function renderCart() {
 function cartItem(item) {
   return `<div class="cart-item">
     <img src="${item.product.img}" alt="${item.product.name}" />
-    <div><h3>${item.product.name}</h3><p>${item.size} Ã¢â‚¬Â¢ ${money(item.unitPrice)} each</p><div class="line-actions"><div class="qty-control"><button onclick="updateQty('${item.key}', -1)">Ã¢Ë†â€™</button><span>${item.qty}</span><button onclick="updateQty('${item.key}', 1)">+</button></div><button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button></div></div>
+    <div><h3>${item.product.name}</h3><p>${item.size} &bull; ${money(item.unitPrice)} each</p><div class="line-actions"><div class="qty-control"><button onclick="updateQty('${item.key}', -1)">&minus;</button><span>${item.qty}</span><button onclick="updateQty('${item.key}', 1)">+</button></div><button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button></div></div>
     <strong>${money(item.unitPrice * item.qty)}</strong>
   </div>`;
 }
@@ -860,7 +860,7 @@ function couponHtml() {
       <input id="couponCode" aria-label="Coupon code" autocomplete="off" maxlength="20" placeholder="Enter coupon code" value="${state.checkout.coupon || ""}" onkeydown="if(event.key === 'Enter'){event.preventDefault(); applyCoupon();}" />
       <button class="${applied ? "remove-coupon" : ""}" onclick="${applied ? "removeCoupon()" : "applyCoupon()"}" type="button">${applied ? "Remove" : "Apply"}</button>
     </div>
-    <small class="coupon-hint ${applied ? "applied" : ""}">${applied ? `${icon("badge-check")} ${activeCoupon} applied Ã¢â‚¬â€ ${discountPercent}% off` : activeCoupon ? `Use ${activeCoupon} for ${discountPercent}% off` : "Coupon offers are currently off"}</small>
+    <small class="coupon-hint ${applied ? "applied" : ""}">${applied ? `${icon("badge-check")} ${activeCoupon} applied &mdash; ${discountPercent}% off` : activeCoupon ? `Use ${activeCoupon} for ${discountPercent}% off` : "Coupon offers are currently off"}</small>
   </div>`;
 }
 
@@ -872,7 +872,7 @@ function productWhatsAppLink(product, qty, size = defaultSizeOption(product).lab
 function cartWhatsAppLink() {
   const lines = state.cart.map(item => {
     const product = products.find(p => p.id === item.id);
-    return product ? `${product.name} (${lineSize(item, product)}) Ãƒâ€” ${item.qty} = ${money(lineUnitPrice(item, product) * item.qty)}` : "";
+    return product ? `${product.name} (${lineSize(item, product)}) x ${item.qty} = ${money(lineUnitPrice(item, product) * item.qty)}` : "";
   }).filter(Boolean);
   const totals = cartTotals();
   const message = `Hello EE Desi Delights, I would like to place this order:\n${lines.join("\n")}\nTotal: ${money(totals.total)}`;
@@ -1083,7 +1083,7 @@ function renderCheckout() {
   app.innerHTML = `
     <section class="checkout-page">
       <div class="section-inner">
-        <div class="breadcrumb">Home Ã¢â‚¬Âº Cart Ã¢â‚¬Âº Checkout</div>
+        <div class="breadcrumb">Home &rsaquo; Cart &rsaquo; Checkout</div>
         <h2>Checkout <span style="font:600 15px Poppins;color:var(--green)">${icon("lock")} 100% Secure Checkout</span></h2>
         <div class="steps"><div class="step active"><b>1</b>Shipping Details</div><div class="step active"><b>2</b>Payment</div><div class="step active"><b>3</b>Review & Place Order</div></div>
       </div>
@@ -1104,8 +1104,8 @@ function renderCheckout() {
           <div style="height:22px"></div>
           <h3>Delivery Options</h3>
           <div class="delivery-options">
-            <label class="option active"><span><input type="radio" name="delivery" checked /> Standard Delivery<br><small>3-5 Working Days PAN India</small></span><b>Ã¢â€šÂ¹80</b></label>
-            <label class="option"><span><input type="radio" name="delivery" /> Express Delivery<br><small>1-2 Working Days selected locations</small></span><b>Ã¢â€šÂ¹150</b></label>
+            <label class="option active"><span><input type="radio" name="delivery" checked /> Standard Delivery<br><small>3-5 Working Days PAN India</small></span><b>${money(80)}</b></label>
+            <label class="option"><span><input type="radio" name="delivery" /> Express Delivery<br><small>1-2 Working Days selected locations</small></span><b>${money(150)}</b></label>
           </div>
           <div style="height:22px"></div>
           <h3>Payment Method</h3>
@@ -1367,7 +1367,7 @@ function adminOverview() {
       </section>
       <section class="admin-panel">
         <div class="admin-panel-head"><div><span class="eyebrow">Latest Orders</span><h3>Recent Activity</h3></div><button class="admin-mini-btn" onclick="adminSelectTab('orders')">View All</button></div>
-        ${latest.length ? latest.map(order => `<div class="admin-activity"><div><b>${order.id}</b><span>${order.date} Ã¢â‚¬Â¢ ${order.items.length} items</span></div><strong>${money(order.total)}</strong></div>`).join("") : `<p>No orders yet. Place a demo order from checkout.</p>`}
+        ${latest.length ? latest.map(order => `<div class="admin-activity"><div><b>${order.id}</b><span>${order.date} &bull; ${order.items.length} items</span></div><strong>${money(order.total)}</strong></div>`).join("") : `<p>No orders yet. Place a demo order from checkout.</p>`}
       </section>
     </div>`;
 }
@@ -1423,7 +1423,7 @@ function adminSeo() {
       </div>
       <div class="seo-recommend">
         <h3>Next Growth Suggestions</h3>
-        <p>Add monthly blog posts for Ã¢â‚¬Å“how to identify pure ghee,Ã¢â‚¬Â Ã¢â‚¬Å“benefits of traditional ghee,Ã¢â‚¬Â and Ã¢â‚¬Å“best ghee for Indian cookingÃ¢â‚¬Â to improve organic traffic further.</p>
+        <p>Add monthly blog posts for "how to identify pure ghee", "benefits of traditional ghee", and "best ghee for Indian cooking" to improve organic traffic further.</p>
       </div>
     </section>`;
 }
@@ -1517,7 +1517,7 @@ function adminOrderAddress(order) {
   const mapLink = orderMapLink(order);
   const addressText = [address.line1, address.landmark, address.city, address.state, address.pincode].filter(Boolean).join(", ");
   return `<div class="admin-order-address">
-    <span>${icon("user")} ${customer.name || "Customer"} ${customer.phone ? `â€¢ ${customer.phone}` : ""}</span>
+    <span>${icon("user")} ${customer.name || "Customer"} ${customer.phone ? `&bull; ${customer.phone}` : ""}</span>
     <span>${icon("map-pin")} ${addressText || "Address not available"}</span>
     ${mapLink ? `<a href="${mapLink}" target="_blank" rel="noreferrer">${icon("navigation")} Open exact map location</a>` : `<em>No map pin saved</em>`}
   </div>`;
@@ -1527,7 +1527,7 @@ function adminOrders() {
   return `<section class="admin-panel"><div class="admin-panel-head"><div><span class="eyebrow">Fulfilment</span><h3>Orders</h3><p>Track orders, delivery address, and exact map pin.</p></div></div>
   <div class="admin-list">${state.orders.length ? state.orders.map(order => `
     <div class="admin-list-row admin-order-row">
-      <div><b>${order.id}</b><span>${order.date} â€¢ ${order.items.length} items</span>${adminOrderAddress(order)}</div>
+      <div><b>${order.id}</b><span>${order.date} &bull; ${order.items.length} items</span>${adminOrderAddress(order)}</div>
       <span class="admin-pill live">${order.status}</span>
       <select onchange="updateOrderStatus('${order.id}', this.value)"><option>${order.status}</option><option>Processing</option><option>Packed</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
       <strong>${money(order.total)}</strong>
@@ -1873,7 +1873,7 @@ function dashboardOverview() {
 
 function ordersHtml() {
   if (!state.orders.length) return `<p>No orders yet. Place a demo order from checkout.</p><a class="btn primary" href="#shop">Shop Ghee</a>`;
-  return state.orders.map(o => `<div class="order-row"><div><b>${o.id}</b><p>${o.items.length} items Ã¢â‚¬Â¢ ${o.date}</p></div><div><span class="status">${o.status}</span><h3>${money(o.total)}</h3></div></div>`).join("");
+  return state.orders.map(o => `<div class="order-row"><div><b>${o.id}</b><p>${o.items.length} items &bull; ${o.date}</p></div><div><span class="status">${o.status}</span><h3>${money(o.total)}</h3></div></div>`).join("");
 }
 
 function dashboardProfile() {
