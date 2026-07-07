@@ -1,4 +1,4 @@
-const money = value => `₹${value.toLocaleString("en-IN")}`;
+const money = value => `Ã¢â€šÂ¹${value.toLocaleString("en-IN")}`;
 
 const SUPABASE_URL = "https://diimzhrdjuhvuquqpqwq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_a3PMJ9KLw9tUyt8AbSxbZw_3JwGqgk0";
@@ -530,19 +530,19 @@ function productCard(product) {
         <img src="${product.img}" alt="${product.name}" />
       </a>
       <div class="product-body">
-        <div class="rating">★★★★★ <span>${product.rating} (${product.reviews})</span></div>
+        <div class="rating">Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦ <span>${product.rating} (${product.reviews})</span></div>
         <a href="#product/${product.id}" class="product-title">${product.name}</a>
-        <div class="product-meta">${product.type} • ${sizeRangeText(product)}</div>
+        <div class="product-meta">${product.type} Ã¢â‚¬Â¢ ${sizeRangeText(product)}</div>
         <div class="card-purchase" data-qty="1" data-size="${escapeAttr(defaultOption.label)}" data-unit-price="${defaultOption.price}">
           <label class="card-size-label">Select Size
             <select class="card-size-select" aria-label="Select size for ${product.name}" onchange="changeCardSize(this)">
-              ${productSizes.map(option => `<option value="${option.price}" data-size="${escapeAttr(option.label)}" ${option.label === defaultOption.label ? "selected" : ""}>${option.label} — ${money(option.price)}</option>`).join("")}
+              ${productSizes.map(option => `<option value="${option.price}" data-size="${escapeAttr(option.label)}" ${option.label === defaultOption.label ? "selected" : ""}>${option.label} Ã¢â‚¬â€ ${money(option.price)}</option>`).join("")}
             </select>
           </label>
           <div class="price-row">
             <div><span class="price">${money(defaultOption.price)}</span><small class="price-quantity">for 1 jar</small></div>
             <div class="card-quantity"><small>Quantity</small><div class="card-qty">
-              <button type="button" onclick="changeCardQty(this, -1)" aria-label="Decrease ${product.name} quantity">−</button>
+              <button type="button" onclick="changeCardQty(this, -1)" aria-label="Decrease ${product.name} quantity">Ã¢Ë†â€™</button>
               <span>1</span>
               <button type="button" onclick="changeCardQty(this, 1)" aria-label="Increase ${product.name} quantity">+</button>
             </div></div>
@@ -703,7 +703,7 @@ function reviewsSection() {
           <div class="stat-card"><b>0</b><span>Preservatives</span></div>
         </div>
         <div class="reviews-grid" style="margin-top:20px">
-          ${["Pure and authentic aroma.", "Perfect grainy texture.", "Packaging was neat and safe.", "Best ghee for dal and rice."].map((r, i) => `<div class="review-card"><div class="rating">★★★★★</div><h3>${r}</h3><p>${["Priyanka R.", "Rajesh M.", "Anitha K.", "Sandeep V."][i]} • Verified Buyer</p></div>`).join("")}
+          ${["Pure and authentic aroma.", "Perfect grainy texture.", "Packaging was neat and safe.", "Best ghee for dal and rice."].map((r, i) => `<div class="review-card"><div class="rating">Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦</div><h3>${r}</h3><p>${["Priyanka R.", "Rajesh M.", "Anitha K.", "Sandeep V."][i]} Ã¢â‚¬Â¢ Verified Buyer</p></div>`).join("")}
         </div>
       </div>
     </section>`;
@@ -755,7 +755,7 @@ function renderProduct(id) {
   const defaultOption = defaultSizeOption(product);
   app.innerHTML = `
     <section class="product-detail">
-      <div class="breadcrumb">Home › Shop › ${product.type} › ${defaultOption.label}</div>
+      <div class="breadcrumb">Home Ã¢â‚¬Âº Shop Ã¢â‚¬Âº ${product.type} Ã¢â‚¬Âº ${defaultOption.label}</div>
       <div class="detail-grid">
         <div>
           <div class="gallery-main"><span class="tag">${product.badge}</span><img id="mainProductImage" src="${product.img}" alt="${product.name}" /></div>
@@ -768,7 +768,7 @@ function renderProduct(id) {
         <div class="detail-info">
           <h1>${product.name}</h1>
           <p class="detail-sub">Inspired traditional preparation | 100% Pure & Natural</p>
-          <div class="rating">★★★★★ ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
+          <div class="rating">Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦Ã¢Ëœâ€¦ ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
           <div class="detail-price" id="detailPrice" data-unit-price="${defaultOption.price}">${money(defaultOption.price)}</div>
           <small>(Inclusive of all taxes)</small>
           <p>${product.desc}</p>
@@ -781,7 +781,7 @@ function renderProduct(id) {
           <div class="size-grid">${productSizes.map(s => `<button class="size-btn ${s.label === defaultOption.label ? "active" : ""}" data-size="${escapeAttr(s.label)}" onclick="selectSize(this, ${s.price})">${s.label}<br>${money(s.price)}</button>`).join("")}</div>
           <h4>Quantity</h4>
           <div class="qty-row">
-            <div class="qty-control"><button onclick="changeDetailQty(-1)">−</button><span id="detailQty">1</span><button onclick="changeDetailQty(1)">+</button></div>
+            <div class="qty-control"><button onclick="changeDetailQty(-1)">Ã¢Ë†â€™</button><span id="detailQty">1</span><button onclick="changeDetailQty(1)">+</button></div>
             <button class="btn primary" onclick="addDetailToCart('${product.id}')">${icon("shopping-cart")} Add to Cart</button>
             <button class="btn gold" onclick="buyNow('${product.id}')">Buy Now</button>
           </div>
@@ -822,7 +822,7 @@ function renderCart() {
 function cartItem(item) {
   return `<div class="cart-item">
     <img src="${item.product.img}" alt="${item.product.name}" />
-    <div><h3>${item.product.name}</h3><p>${item.size} • ${money(item.unitPrice)} each</p><div class="line-actions"><div class="qty-control"><button onclick="updateQty('${item.key}', -1)">−</button><span>${item.qty}</span><button onclick="updateQty('${item.key}', 1)">+</button></div><button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button></div></div>
+    <div><h3>${item.product.name}</h3><p>${item.size} Ã¢â‚¬Â¢ ${money(item.unitPrice)} each</p><div class="line-actions"><div class="qty-control"><button onclick="updateQty('${item.key}', -1)">Ã¢Ë†â€™</button><span>${item.qty}</span><button onclick="updateQty('${item.key}', 1)">+</button></div><button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button></div></div>
     <strong>${money(item.unitPrice * item.qty)}</strong>
   </div>`;
 }
@@ -860,7 +860,7 @@ function couponHtml() {
       <input id="couponCode" aria-label="Coupon code" autocomplete="off" maxlength="20" placeholder="Enter coupon code" value="${state.checkout.coupon || ""}" onkeydown="if(event.key === 'Enter'){event.preventDefault(); applyCoupon();}" />
       <button class="${applied ? "remove-coupon" : ""}" onclick="${applied ? "removeCoupon()" : "applyCoupon()"}" type="button">${applied ? "Remove" : "Apply"}</button>
     </div>
-    <small class="coupon-hint ${applied ? "applied" : ""}">${applied ? `${icon("badge-check")} ${activeCoupon} applied — ${discountPercent}% off` : activeCoupon ? `Use ${activeCoupon} for ${discountPercent}% off` : "Coupon offers are currently off"}</small>
+    <small class="coupon-hint ${applied ? "applied" : ""}">${applied ? `${icon("badge-check")} ${activeCoupon} applied Ã¢â‚¬â€ ${discountPercent}% off` : activeCoupon ? `Use ${activeCoupon} for ${discountPercent}% off` : "Coupon offers are currently off"}</small>
   </div>`;
 }
 
@@ -872,11 +872,208 @@ function productWhatsAppLink(product, qty, size = defaultSizeOption(product).lab
 function cartWhatsAppLink() {
   const lines = state.cart.map(item => {
     const product = products.find(p => p.id === item.id);
-    return product ? `${product.name} (${lineSize(item, product)}) × ${item.qty} = ${money(lineUnitPrice(item, product) * item.qty)}` : "";
+    return product ? `${product.name} (${lineSize(item, product)}) Ãƒâ€” ${item.qty} = ${money(lineUnitPrice(item, product) * item.qty)}` : "";
   }).filter(Boolean);
   const totals = cartTotals();
   const message = `Hello EE Desi Delights, I would like to place this order:\n${lines.join("\n")}\nTotal: ${money(totals.total)}`;
   return `https://wa.me/919666677434?text=${encodeURIComponent(message)}`;
+}
+
+function numericCoord(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function mapsLink(latitude, longitude) {
+  if (!Number.isFinite(Number(latitude)) || !Number.isFinite(Number(longitude))) return "";
+  return `https://www.google.com/maps?q=${Number(latitude).toFixed(6)},${Number(longitude).toFixed(6)}`;
+}
+
+function checkoutAddressPayload() {
+  const latitude = state.checkout.latitude || "";
+  const longitude = state.checkout.longitude || "";
+  const mapLink = state.checkout.mapLink || mapsLink(latitude, longitude);
+  return {
+    line1: state.checkout.address || "",
+    landmark: state.checkout.landmark || "",
+    city: state.checkout.city || "",
+    state: state.checkout.stateName || "",
+    pincode: state.checkout.pincode || "",
+    note: state.checkout.note || "",
+    latitude,
+    longitude,
+    mapLink
+  };
+}
+
+function checkoutMapPicker(c = {}) {
+  const latitude = c.latitude || "";
+  const longitude = c.longitude || "";
+  const mapLink = c.mapLink || mapsLink(latitude, longitude);
+  return `
+    <div class="checkout-map-card">
+      <div class="checkout-map-head">
+        <div>
+          <h3>Pin Delivery Location</h3>
+          <p>Use current location, click the map, or drag the pin. You can still edit the address above.</p>
+        </div>
+        <div class="map-actions">
+          <button type="button" class="btn ghost" onclick="locateAddressOnMap()">${icon("search")} Find Address</button>
+          <button type="button" class="btn ghost" onclick="useLocation()">${icon("crosshair")} Use Current Location</button>
+        </div>
+      </div>
+      <div id="checkoutMap" class="checkout-map"></div>
+      <div class="map-info-row">
+        <span id="mapStatus">${latitude && longitude ? `Pinned: ${Number(latitude).toFixed(5)}, ${Number(longitude).toFixed(5)}` : "Map pin not selected yet"}</span>
+        <a id="mapPreviewLink" href="${mapLink || "#"}" target="_blank" rel="noreferrer" class="map-preview-link ${mapLink ? "" : "disabled"}">${icon("map")} Open Map</a>
+      </div>
+      <input type="hidden" id="latitude" value="${escapeAttr(latitude)}" />
+      <input type="hidden" id="longitude" value="${escapeAttr(longitude)}" />
+      <input type="hidden" id="mapLink" value="${escapeAttr(mapLink)}" />
+    </div>`;
+}
+
+function updateMapFields(latitude, longitude, message = "Location pin updated") {
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+  const link = mapsLink(lat, lng);
+  const latInput = document.getElementById("latitude");
+  const lngInput = document.getElementById("longitude");
+  const linkInput = document.getElementById("mapLink");
+  const status = document.getElementById("mapStatus");
+  const preview = document.getElementById("mapPreviewLink");
+  if (latInput) latInput.value = lat.toFixed(6);
+  if (lngInput) lngInput.value = lng.toFixed(6);
+  if (linkInput) linkInput.value = link;
+  if (status) status.textContent = `${message}: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  if (preview) {
+    preview.href = link;
+    preview.classList.remove("disabled");
+  }
+}
+
+function setCheckoutPin(latitude, longitude, zoom = 16, message = "Location pin updated") {
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+  if (checkoutMarker) checkoutMarker.setLatLng([lat, lng]);
+  if (checkoutMap) checkoutMap.setView([lat, lng], zoom);
+  updateMapFields(lat, lng, message);
+}
+
+function initCheckoutMap() {
+  const mapNode = document.getElementById("checkoutMap");
+  if (!mapNode) return;
+  const hasSavedPin = Boolean(state.checkout.latitude && state.checkout.longitude);
+  const lat = numericCoord(state.checkout.latitude, 17.385044);
+  const lng = numericCoord(state.checkout.longitude, 78.486671);
+  if (hasSavedPin) updateMapFields(lat, lng, "Saved pin");
+  else {
+    const status = document.getElementById("mapStatus");
+    if (status) status.textContent = "Use current location, find address, or tap the map to set exact delivery pin.";
+  }
+  if (typeof L === "undefined") {
+    const status = document.getElementById("mapStatus");
+    if (status) status.textContent = "Map could not load. Use Current Location to save GPS coordinates.";
+    return;
+  }
+  if (checkoutMap) {
+    checkoutMap.remove();
+    checkoutMap = null;
+    checkoutMarker = null;
+  }
+  checkoutMap = L.map("checkoutMap", { scrollWheelZoom: false }).setView([lat, lng], hasSavedPin ? 16 : 12);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap"
+  }).addTo(checkoutMap);
+  checkoutMarker = L.marker([lat, lng], { draggable: true }).addTo(checkoutMap);
+  checkoutMarker.on("dragend", async () => {
+    const point = checkoutMarker.getLatLng();
+    updateMapFields(point.lat, point.lng, "Pin dragged");
+    await reverseGeocode(point.lat, point.lng, true);
+  });
+  checkoutMap.on("click", async event => {
+    setCheckoutPin(event.latlng.lat, event.latlng.lng, checkoutMap.getZoom(), "Pin selected");
+    await reverseGeocode(event.latlng.lat, event.latlng.lng, true);
+  });
+  setTimeout(() => checkoutMap?.invalidateSize(), 250);
+}
+
+function clearCheckoutPinForAddressEdit() {
+  const latInput = document.getElementById("latitude");
+  const lngInput = document.getElementById("longitude");
+  const linkInput = document.getElementById("mapLink");
+  const status = document.getElementById("mapStatus");
+  const preview = document.getElementById("mapPreviewLink");
+  if (latInput) latInput.value = "";
+  if (lngInput) lngInput.value = "";
+  if (linkInput) linkInput.value = "";
+  state.checkout.latitude = "";
+  state.checkout.longitude = "";
+  state.checkout.mapLink = "";
+  if (status) status.textContent = "Address changed. Tap Find Address or Use Current Location to update the exact pin.";
+  if (preview) {
+    preview.href = "#";
+    preview.classList.add("disabled");
+  }
+}
+
+function attachLocationEditGuards() {
+  ["address", "landmark", "city", "pincode"].forEach(id => {
+    const field = document.getElementById(id);
+    if (field) field.addEventListener("input", clearCheckoutPinForAddressEdit);
+  });
+  const stateField = document.getElementById("stateName");
+  if (stateField) stateField.addEventListener("change", clearCheckoutPinForAddressEdit);
+}
+async function reverseGeocode(latitude, longitude, fillAddress = true) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
+    const data = await res.json();
+    const a = data.address || {};
+    if (fillAddress) {
+      const addressField = document.getElementById("address");
+      const cityField = document.getElementById("city");
+      const pinField = document.getElementById("pincode");
+      const stateField = document.getElementById("stateName");
+      if (addressField) addressField.value = data.display_name || `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`;
+      if (cityField) cityField.value = a.city || a.town || a.village || a.suburb || "";
+      if (pinField) pinField.value = a.postcode || "";
+      if (stateField) stateField.innerHTML = `<option>${a.state || "Telangana"}</option><option>Telangana</option><option>Andhra Pradesh</option><option>Karnataka</option><option>Maharashtra</option><option>Tamil Nadu</option><option>Delhi</option>`;
+    }
+    collectCheckout();
+    return data;
+  } catch {
+    collectCheckout();
+    showToast("GPS saved. Address lookup was unavailable.");
+    return null;
+  }
+}
+
+async function locateAddressOnMap() {
+  const query = [
+    document.getElementById("address")?.value,
+    document.getElementById("landmark")?.value,
+    document.getElementById("city")?.value,
+    document.getElementById("stateName")?.value,
+    document.getElementById("pincode")?.value
+  ].filter(Boolean).join(", ");
+  if (!query.trim()) { showToast("Enter address first, then tap Find Address"); return; }
+  showToast("Finding address on map...");
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (!data?.length) { showToast("Address not found. Please use current location or drag the pin."); return; }
+    const point = data[0];
+    setCheckoutPin(point.lat, point.lon, 17, "Address found");
+    await reverseGeocode(point.lat, point.lon, false);
+    collectCheckout();
+    showToast("Map pin updated from address");
+  } catch {
+    showToast("Could not search address right now");
+  }
 }
 
 function renderCheckout() {
@@ -886,7 +1083,7 @@ function renderCheckout() {
   app.innerHTML = `
     <section class="checkout-page">
       <div class="section-inner">
-        <div class="breadcrumb">Home › Cart › Checkout</div>
+        <div class="breadcrumb">Home Ã¢â‚¬Âº Cart Ã¢â‚¬Âº Checkout</div>
         <h2>Checkout <span style="font:600 15px Poppins;color:var(--green)">${icon("lock")} 100% Secure Checkout</span></h2>
         <div class="steps"><div class="step active"><b>1</b>Shipping Details</div><div class="step active"><b>2</b>Payment</div><div class="step active"><b>3</b>Review & Place Order</div></div>
       </div>
@@ -907,8 +1104,8 @@ function renderCheckout() {
           <div style="height:22px"></div>
           <h3>Delivery Options</h3>
           <div class="delivery-options">
-            <label class="option active"><span><input type="radio" name="delivery" checked /> Standard Delivery<br><small>3-5 Working Days PAN India</small></span><b>₹80</b></label>
-            <label class="option"><span><input type="radio" name="delivery" /> Express Delivery<br><small>1-2 Working Days selected locations</small></span><b>₹150</b></label>
+            <label class="option active"><span><input type="radio" name="delivery" checked /> Standard Delivery<br><small>3-5 Working Days PAN India</small></span><b>Ã¢â€šÂ¹80</b></label>
+            <label class="option"><span><input type="radio" name="delivery" /> Express Delivery<br><small>1-2 Working Days selected locations</small></span><b>Ã¢â€šÂ¹150</b></label>
           </div>
           <div style="height:22px"></div>
           <h3>Payment Method</h3>
@@ -1170,7 +1367,7 @@ function adminOverview() {
       </section>
       <section class="admin-panel">
         <div class="admin-panel-head"><div><span class="eyebrow">Latest Orders</span><h3>Recent Activity</h3></div><button class="admin-mini-btn" onclick="adminSelectTab('orders')">View All</button></div>
-        ${latest.length ? latest.map(order => `<div class="admin-activity"><div><b>${order.id}</b><span>${order.date} • ${order.items.length} items</span></div><strong>${money(order.total)}</strong></div>`).join("") : `<p>No orders yet. Place a demo order from checkout.</p>`}
+        ${latest.length ? latest.map(order => `<div class="admin-activity"><div><b>${order.id}</b><span>${order.date} Ã¢â‚¬Â¢ ${order.items.length} items</span></div><strong>${money(order.total)}</strong></div>`).join("") : `<p>No orders yet. Place a demo order from checkout.</p>`}
       </section>
     </div>`;
 }
@@ -1226,7 +1423,7 @@ function adminSeo() {
       </div>
       <div class="seo-recommend">
         <h3>Next Growth Suggestions</h3>
-        <p>Add monthly blog posts for “how to identify pure ghee,” “benefits of traditional ghee,” and “best ghee for Indian cooking” to improve organic traffic further.</p>
+        <p>Add monthly blog posts for Ã¢â‚¬Å“how to identify pure ghee,Ã¢â‚¬Â Ã¢â‚¬Å“benefits of traditional ghee,Ã¢â‚¬Â and Ã¢â‚¬Å“best ghee for Indian cookingÃ¢â‚¬Â to improve organic traffic further.</p>
       </div>
     </section>`;
 }
@@ -1309,11 +1506,28 @@ function adminProducts() {
     </section>`;
 }
 
+function orderMapLink(order) {
+  const address = order.address || {};
+  return address.mapLink || mapsLink(address.latitude, address.longitude);
+}
+
+function adminOrderAddress(order) {
+  const address = order.address || {};
+  const customer = order.customer || {};
+  const mapLink = orderMapLink(order);
+  const addressText = [address.line1, address.landmark, address.city, address.state, address.pincode].filter(Boolean).join(", ");
+  return `<div class="admin-order-address">
+    <span>${icon("user")} ${customer.name || "Customer"} ${customer.phone ? `â€¢ ${customer.phone}` : ""}</span>
+    <span>${icon("map-pin")} ${addressText || "Address not available"}</span>
+    ${mapLink ? `<a href="${mapLink}" target="_blank" rel="noreferrer">${icon("navigation")} Open exact map location</a>` : `<em>No map pin saved</em>`}
+  </div>`;
+}
+
 function adminOrders() {
-  return `<section class="admin-panel"><div class="admin-panel-head"><div><span class="eyebrow">Fulfilment</span><h3>Orders</h3><p>Track orders and update delivery status.</p></div></div>
+  return `<section class="admin-panel"><div class="admin-panel-head"><div><span class="eyebrow">Fulfilment</span><h3>Orders</h3><p>Track orders, delivery address, and exact map pin.</p></div></div>
   <div class="admin-list">${state.orders.length ? state.orders.map(order => `
-    <div class="admin-list-row">
-      <div><b>${order.id}</b><span>${order.date} • ${order.items.length} items</span></div>
+    <div class="admin-list-row admin-order-row">
+      <div><b>${order.id}</b><span>${order.date} â€¢ ${order.items.length} items</span>${adminOrderAddress(order)}</div>
       <span class="admin-pill live">${order.status}</span>
       <select onchange="updateOrderStatus('${order.id}', this.value)"><option>${order.status}</option><option>Processing</option><option>Packed</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
       <strong>${money(order.total)}</strong>
@@ -1659,7 +1873,7 @@ function dashboardOverview() {
 
 function ordersHtml() {
   if (!state.orders.length) return `<p>No orders yet. Place a demo order from checkout.</p><a class="btn primary" href="#shop">Shop Ghee</a>`;
-  return state.orders.map(o => `<div class="order-row"><div><b>${o.id}</b><p>${o.items.length} items • ${o.date}</p></div><div><span class="status">${o.status}</span><h3>${money(o.total)}</h3></div></div>`).join("");
+  return state.orders.map(o => `<div class="order-row"><div><b>${o.id}</b><p>${o.items.length} items Ã¢â‚¬Â¢ ${o.date}</p></div><div><span class="status">${o.status}</span><h3>${money(o.total)}</h3></div></div>`).join("");
 }
 
 function dashboardProfile() {
@@ -1841,27 +2055,23 @@ async function useLocation() {
   if (!navigator.geolocation) { showToast("Location is not supported in this browser"); return; }
   showToast("Requesting location permission...");
   navigator.geolocation.getCurrentPosition(async pos => {
-    const { latitude, longitude } = pos.coords;
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
-      const data = await res.json();
-      const a = data.address || {};
-      document.getElementById("address").value = data.display_name || `${latitude}, ${longitude}`;
-      document.getElementById("city").value = a.city || a.town || a.village || "";
-      document.getElementById("pincode").value = a.postcode || "";
-      document.getElementById("stateName").innerHTML = `<option>${a.state || "Telangana"}</option><option>Telangana</option><option>Andhra Pradesh</option><option>Karnataka</option>`;
-      showToast("Address auto-filled from your location");
-    } catch {
-      document.getElementById("address").value = `GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-      showToast("GPS captured. Reverse address service unavailable.");
-    }
-  }, () => showToast("Location permission was not allowed"));
+    const { latitude, longitude, accuracy } = pos.coords;
+    setCheckoutPin(latitude, longitude, 18, accuracy ? "Current location accuracy " + Math.round(accuracy) + "m" : "Current location");
+    await reverseGeocode(latitude, longitude, true);
+    showToast("Exact location pinned. You can drag the pin to adjust.");
+  }, () => showToast("Location permission was not allowed"), { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
 }
 
 function collectCheckout() {
   const ids = ["fullName", "phone", "email", "address", "landmark", "city", "pincode", "note"];
   ids.forEach(id => state.checkout[id] = document.getElementById(id)?.value || "");
   state.checkout.stateName = document.getElementById("stateName")?.value || "Telangana";
+  const latInput = document.getElementById("latitude");
+  const lngInput = document.getElementById("longitude");
+  const linkInput = document.getElementById("mapLink");
+  state.checkout.latitude = latInput ? latInput.value : state.checkout.latitude || "";
+  state.checkout.longitude = lngInput ? lngInput.value : state.checkout.longitude || "";
+  state.checkout.mapLink = linkInput ? linkInput.value : mapsLink(state.checkout.latitude, state.checkout.longitude);
   save();
 }
 
@@ -1893,6 +2103,11 @@ async function verifyRazorpayPayment(response) {
 async function placeOrder(e) {
   e.preventDefault();
   collectCheckout();
+  if (!state.checkout.latitude || !state.checkout.longitude) {
+    showToast("Please pin your exact delivery location on the map");
+    document.getElementById("checkoutMap")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
   const totals = cartTotals();
   if (!state.settings.razorpayEnabled || typeof Razorpay === "undefined") {
     showToast("Online payment is not available right now");
