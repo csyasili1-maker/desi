@@ -291,5 +291,5 @@ on conflict (key) do update set value = excluded.value, updated_at = now();
 -- insert into public.admin_profiles (user_id, email, role)
 -- select id, email, 'admin'
 -- from auth.users
--- where email = 'admin@desidelights.com'
+-- where email = 'client-admin@example.com'
 -- on conflict (user_id) do update set email = excluded.email, role = 'admin';

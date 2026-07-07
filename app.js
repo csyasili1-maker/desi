@@ -80,6 +80,11 @@ let state = {
   settings: { ...defaultSettings, ...savedSettings }
 };
 
+if (state.admin && !state.admin.cloud) {
+  state.admin = null;
+  localStorage.removeItem("ee_desi_v2_admin");
+}
+
 let heroTimer = null;
 let activeHero = 0;
 
@@ -717,7 +722,7 @@ function faqSection() {
   const faqs = [
     ["Is EE Desi Delights ghee preservative-free?", "Yes. The demo content presents every ghee product as free from preservatives, artificial colors, and chemicals."],
     ["Do you deliver outside Hyderabad?", "Yes, the checkout demo supports Hyderabad and PAN India delivery."],
-    ["Can I pay with Razorpay?", "Yes. This site includes a Razorpay demo flow with a local fallback success order if the test script is unavailable."],
+    ["Can I pay with Razorpay?", "Yes. Razorpay checkout is connected through a server-side order and payment verification flow."],
     ["Can the address be detected automatically?", "Yes. Use the location button during checkout. Browser permission is required, and reverse geocoding is attempted for demo autofill."]
   ];
   return `<section class="section cream-band"><div class="section-inner"><span class="eyebrow">FAQ</span><h2>Ghee shopping questions</h2><div style="display:grid;gap:14px;margin-top:24px">${faqs.map(f => `<details class="faq-item"><summary><b>${f[0]}</b></summary><p>${f[1]}</p></details>`).join("")}</div></div></section>`;
@@ -903,7 +908,7 @@ function renderCheckout() {
           <div style="height:22px"></div>
           <h3>Payment Method</h3>
           <div class="payment-options">
-            <label class="option active"><span><input type="radio" name="payment" value="razorpay" checked /> UPI / Google Pay / PhonePe / Paytm<br><small>Demo Razorpay checkout</small></span><b>Razorpay</b></label>
+            <label class="option active"><span><input type="radio" name="payment" value="razorpay" checked /> UPI / Google Pay / PhonePe / Paytm<br><small>Secure Razorpay checkout</small></span><b>Razorpay</b></label>
             <label class="option"><span><input type="radio" name="payment" value="card" /> Credit / Debit Card<br><small>Visa, Mastercard, RuPay and more</small></span><b>Card</b></label>
             <label class="option"><span><input type="radio" name="payment" value="cod" /> Cash On Delivery<br><small>Pay when your order is delivered</small></span><b>COD</b></label>
           </div>
@@ -923,7 +928,7 @@ function renderCheckout() {
           <div class="summary-box" style="margin-top:14px">
             ${couponHtml()}
           </div>
-          <div class="summary-box" style="margin-top:14px"><h3>Why Shop With Us?</h3><p>Pure ghee, secure packaging, fast delivery, easy returns, and trusted demo checkout.</p></div>
+          <div class="summary-box" style="margin-top:14px"><h3>Why Shop With Us?</h3><p>Pure ghee, secure packaging, fast delivery, easy returns, and trusted checkout.</p></div>
         </aside>
       </div>
     </section>`;
@@ -1049,16 +1054,16 @@ function renderPolicyPage(type) {
       points: [
         "This local demo stores login, cart, and order information in your browser localStorage.",
         "Location access is optional and used only to autofill checkout address fields.",
-        "No real payment or private data is sent to an EE Desi Delights backend in this static demo.",
-        "Razorpay is loaded only for the demo payment popup experience."
+        "Checkout and order information can be stored in the connected EE Desi Delights Supabase backend.",
+        "Razorpay is loaded only when payment checkout is required."
       ]
     },
     terms: {
       title: "Terms & Conditions",
       copy: "Demo ecommerce terms for using the EE Desi Delights local website.",
       points: [
-        "Product prices, stock, delivery timelines, and offers are demo content.",
-        "The Razorpay key is a test/demo integration and not a live merchant setup.",
+        "Product prices, delivery timelines, and offers can be updated from the admin panel.",
+        "Razorpay live/test mode depends on the keys configured in Vercel.",
         "Images and copy are prepared for presentation and can be replaced with final business assets.",
         "By placing a demo order, you agree that the order is stored locally for dashboard preview only."
       ]
@@ -1089,13 +1094,9 @@ function renderAdminLogin() {
         <span class="eyebrow">Secure Mock Login</span>
         <h2>Admin Panel</h2>
         <p>Use the Supabase admin email and password to manage live products, prices, images, orders, content, and Razorpay settings.</p>
-        <div class="admin-demo-box">
-          <b>Email:</b> admin@desidelights.com<br>
-          <b>Password:</b> admin123
-        </div>
         <div class="form-grid">
-          <div class="field"><label>Email</label><input id="adminEmail" type="email" value="admin@desidelights.com" required /></div>
-          <div class="field"><label>Password</label><input id="adminPassword" type="password" value="admin123" required /></div>
+          <div class="field"><label>Email</label><input id="adminEmail" type="email" placeholder="Admin email" required /></div>
+          <div class="field"><label>Password</label><input id="adminPassword" type="password" placeholder="Admin password" required /></div>
         </div>
         <button class="btn primary" type="submit" style="margin-top:18px">${icon("lock-keyhole")} Login to Admin</button>
         <a class="btn ghost" href="#home" style="margin-top:10px">${icon("arrow-left")} Back to Website</a>
@@ -1122,8 +1123,8 @@ function renderAdmin() {
           <button data-admin-tab="razorpay" onclick="adminTab('razorpay', this)">${icon("credit-card")} Razorpay</button>
         </nav>
         <div class="admin-side-card">
-          <b>Demo Mode</b>
-          <span>Data is saved in browser storage for presentation.</span>
+          <b>${state.admin?.cloud ? "Live Database" : "Local Preview"}</b>
+          <span>${state.admin?.cloud ? "Changes sync to Supabase." : "Login with Supabase admin to save live changes."}</span>
         </div>
       </aside>
       <div class="admin-main">
@@ -1150,12 +1151,12 @@ function adminOverview() {
     <div class="admin-metrics">
       <div class="admin-metric">${icon("package")}<span>Products</span><b>${products.length}</b><small>Live catalog items</small></div>
       <div class="admin-metric">${icon("users")}<span>Users</span><b>${state.users.length}</b><small>Customer records</small></div>
-      <div class="admin-metric">${icon("receipt")}<span>Orders</span><b>${state.orders.length}</b><small>Demo order history</small></div>
-      <div class="admin-metric">${icon("indian-rupee")}<span>Revenue</span><b>${money(totals)}</b><small>Local demo sales</small></div>
+      <div class="admin-metric">${icon("receipt")}<span>Orders</span><b>${state.orders.length}</b><small>Order history</small></div>
+      <div class="admin-metric">${icon("indian-rupee")}<span>Revenue</span><b>${money(totals)}</b><small>Store sales</small></div>
     </div>
     <div class="admin-two-col">
       <section class="admin-panel">
-        <div class="admin-panel-head"><div><span class="eyebrow">Quick Health</span><h3>Store Snapshot</h3></div><span class="admin-pill live">Live Demo</span></div>
+        <div class="admin-panel-head"><div><span class="eyebrow">Quick Health</span><h3>Store Snapshot</h3></div><span class="admin-pill live">${state.admin?.cloud ? "Live DB" : "Preview"}</span></div>
         <div class="admin-health">
           <div><b>Razorpay</b><span>${state.settings.razorpayEnabled ? "Enabled" : "Disabled"}</span></div>
           <div><b>Merchant</b><span>${state.settings.razorpayMerchant}</span></div>
@@ -1305,14 +1306,14 @@ function adminProducts() {
 }
 
 function adminOrders() {
-  return `<section class="admin-panel"><div class="admin-panel-head"><div><span class="eyebrow">Fulfilment</span><h3>Orders</h3><p>Track demo orders and update delivery status.</p></div></div>
+  return `<section class="admin-panel"><div class="admin-panel-head"><div><span class="eyebrow">Fulfilment</span><h3>Orders</h3><p>Track orders and update delivery status.</p></div></div>
   <div class="admin-list">${state.orders.length ? state.orders.map(order => `
     <div class="admin-list-row">
       <div><b>${order.id}</b><span>${order.date} • ${order.items.length} items</span></div>
       <span class="admin-pill live">${order.status}</span>
       <select onchange="updateOrderStatus('${order.id}', this.value)"><option>${order.status}</option><option>Processing</option><option>Packed</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
       <strong>${money(order.total)}</strong>
-    </div>`).join("") : "<p>No demo orders yet.</p>"}</div></section>`;
+    </div>`).join("") : "<p>No orders yet.</p>"}</div></section>`;
 }
 
 function adminUsers() {
@@ -1359,7 +1360,7 @@ function adminImageField(key, label, value) {
 function adminRazorpay() {
   return `
     <section class="admin-panel payment-panel">
-      <div class="admin-panel-head"><div><span class="eyebrow">Payment Gateway</span><h3>Razorpay Admin Settings</h3><p>Use test keys for demo. Checkout reads these fields directly.</p></div><span class="admin-pill live">${state.settings.razorpayEnabled ? "Enabled" : "Disabled"}</span></div>
+      <div class="admin-panel-head"><div><span class="eyebrow">Payment Gateway</span><h3>Razorpay Admin Settings</h3><p>Enable/disable Razorpay and set the public Key ID. Secret keys stay only in Vercel environment variables.</p></div><span class="admin-pill live">${state.settings.razorpayEnabled ? "Enabled" : "Disabled"}</span></div>
       <div class="admin-settings-grid">
         <div class="field"><label>Enable Razorpay</label><select id="set-razorpayEnabled"><option value="true" ${state.settings.razorpayEnabled ? "selected" : ""}>Enabled</option><option value="false" ${!state.settings.razorpayEnabled ? "selected" : ""}>Disabled</option></select></div>
         <div class="field"><label>Razorpay Key ID</label><input id="set-razorpayKey" value="${escapeAttr(state.settings.razorpayKey)}" /></div>
@@ -1402,33 +1403,21 @@ async function adminLogin(event) {
   event.preventDefault();
   const email = document.getElementById("adminEmail").value.trim();
   const password = document.getElementById("adminPassword").value;
-  if (supabaseClient) {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (!error && data.user) {
-      const { data: profile, error: profileError } = await supabaseClient.from("admin_profiles").select("role").eq("user_id", data.user.id).maybeSingle();
-      if (!profileError && profile) {
-        state.admin = { email, name: "EE Desi Delights Admin", cloud: true, loginAt: new Date().toISOString() };
-        save();
-        await loadCloudStore();
-        await loadCloudOrders();
-        showToast("Admin login successful");
-        if (location.hash === "#admin") {
-          renderAdmin();
-          refreshIcons();
-          initReveals();
-        } else {
-          location.hash = "#admin";
-        }
-        return;
-      }
-      await supabaseClient.auth.signOut();
-      showToast("This Supabase user is not marked as admin");
-      return;
-    }
+  if (!supabaseClient) {
+    showToast("Live database connection is required for admin login");
+    return;
   }
-  if (email === "admin@desidelights.com" && password === "admin123") {
-    state.admin = { email, name: "EE Desi Delights Admin", loginAt: new Date().toISOString() };
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error || !data.user) {
+    showToast("Invalid admin login");
+    return;
+  }
+  const { data: profile, error: profileError } = await supabaseClient.from("admin_profiles").select("role").eq("user_id", data.user.id).maybeSingle();
+  if (!profileError && profile) {
+    state.admin = { email, name: "EE Desi Delights Admin", cloud: true, loginAt: new Date().toISOString() };
     save();
+    await loadCloudStore();
+    await loadCloudOrders();
     showToast("Admin login successful");
     if (location.hash === "#admin") {
       renderAdmin();
@@ -1437,7 +1426,10 @@ async function adminLogin(event) {
     } else {
       location.hash = "#admin";
     }
-  } else showToast("Invalid admin demo login");
+    return;
+  }
+  await supabaseClient.auth.signOut();
+  showToast("This Supabase user is not marked as admin");
 }
 
 async function adminLogout() {
