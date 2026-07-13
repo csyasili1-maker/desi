@@ -326,7 +326,22 @@ p { color: var(--muted); line-height: 1.75; }
 .product-title { font-weight: 700; color: var(--green-2); margin: 8px 0 3px; }
 .product-meta { color: var(--muted); font-size: 13px; }
 .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+.price-stack { display: grid; gap: 3px; }
 .price { font-size: 22px; font-weight: 800; color: var(--ink); }
+.cutoff-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; }
+.cutoff-price, .detail-cutoff, .size-btn del { color: #8a7668; text-decoration-thickness: 2px; }
+.discount-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #edf7ec;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
 .mini-cart { width: 42px; height: 42px; border-radius: 6px; border: 0; background: var(--green); color: white; display: grid; place-items: center; }
 .price-quantity { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
 .card-size-label { display: grid; gap: 6px; margin-top: 14px; color: var(--green-2); font-size: 12px; font-weight: 700; }
@@ -399,9 +414,13 @@ p { color: var(--muted); line-height: 1.75; }
 .thumbs img { aspect-ratio: 1; object-fit: cover; border: 2px solid var(--line); border-radius: 6px; }
 .detail-info h1 { font-size: clamp(34px, 4vw, 54px); }
 .detail-sub { color: var(--green); font-weight: 700; }
-.detail-price { font-size: 34px; font-weight: 800; margin: 12px 0 4px; }
+.detail-price-wrap { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 4px; }
+.detail-price { font-size: 34px; font-weight: 800; }
+.detail-cutoff { font-size: 20px; font-weight: 700; }
+.detail-discount { transform: translateY(1px); }
 .size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 14px 0 22px; }
 .size-btn { border: 1px solid var(--line); background: white; border-radius: 6px; padding: 12px 8px; font-weight: 700; }
+.size-btn small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
 .size-btn.active { border-color: var(--green); background: #f4fbf6; }
 .qty-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 .qty-control { display: inline-grid; grid-template-columns: 40px 48px 40px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }

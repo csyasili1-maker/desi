@@ -545,6 +545,23 @@ function defaultSizeOption(product) {
   return options.find(option => option.label === product?.size) || options.find(option => option.label === "500 ml") || options[0] || { label: product?.size || "500 ml", price: product?.price || 0 };
 }
 
+function cutoffPriceFor(product, option = defaultSizeOption(product)) {
+  const defaultOption = defaultSizeOption(product);
+  const baseSellingPrice = Number(defaultOption.price || product?.price || 0);
+  const baseCutoffPrice = Number(product?.old || 0);
+  const selectedSellingPrice = Number(option?.price || 0);
+  if (!baseCutoffPrice || !baseSellingPrice || !selectedSellingPrice || baseCutoffPrice <= baseSellingPrice) return 0;
+  if (option?.label === defaultOption.label) return baseCutoffPrice;
+  return Math.max(selectedSellingPrice + 1, Math.round(baseCutoffPrice * (selectedSellingPrice / baseSellingPrice)));
+}
+
+function discountPercentFor(sellingPrice, cutoffPrice) {
+  const selling = Number(sellingPrice || 0);
+  const cutoff = Number(cutoffPrice || 0);
+  if (!cutoff || cutoff <= selling) return 0;
+  return Math.max(1, Math.round(((cutoff - selling) / cutoff) * 100));
+}
+
 function sizeRangeText(product) {
   const options = sizeOptionsFor(product);
   if (!options.length) return product?.size || "500 ml";
@@ -567,6 +584,8 @@ function lineKey(item, product) {
 function productCard(product) {
   const productSizes = sizeOptionsFor(product);
   const defaultOption = defaultSizeOption(product);
+  const defaultCutoff = cutoffPriceFor(product, defaultOption);
+  const defaultDiscount = discountPercentFor(defaultOption.price, defaultCutoff);
   return `
     <article class="product-card">
       <a class="img-wrap" href="#product/${product.id}">
@@ -577,14 +596,21 @@ function productCard(product) {
         <div class="rating">&#9733;&#9733;&#9733;&#9733;&#9733; <span>${product.rating} (${product.reviews})</span></div>
         <a href="#product/${product.id}" class="product-title">${product.name}</a>
         <div class="product-meta">${product.type} &bull; ${sizeRangeText(product)}</div>
-        <div class="card-purchase" data-qty="1" data-size="${escapeAttr(defaultOption.label)}" data-unit-price="${defaultOption.price}">
+        <div class="card-purchase" data-qty="1" data-size="${escapeAttr(defaultOption.label)}" data-unit-price="${defaultOption.price}" data-old-price="${defaultCutoff}">
           <label class="card-size-label">Select Size
             <select class="card-size-select" aria-label="Select size for ${product.name}" onchange="changeCardSize(this)">
-              ${productSizes.map(option => `<option value="${option.price}" data-size="${escapeAttr(option.label)}" ${option.label === defaultOption.label ? "selected" : ""}>${option.label} &mdash; ${money(option.price)}</option>`).join("")}
+              ${productSizes.map(option => {
+                const cutoff = cutoffPriceFor(product, option);
+                return `<option value="${option.price}" data-old-price="${cutoff}" data-size="${escapeAttr(option.label)}" ${option.label === defaultOption.label ? "selected" : ""}>${option.label} &mdash; ${money(option.price)}${cutoff ? ` | MRP ${money(cutoff)}` : ""}</option>`;
+              }).join("")}
             </select>
           </label>
           <div class="price-row">
-            <div><span class="price">${money(defaultOption.price)}</span><small class="price-quantity">for 1 jar</small></div>
+            <div class="price-stack">
+              <span class="price">${money(defaultOption.price)}</span>
+              <div class="cutoff-row ${defaultCutoff ? "" : "hidden"}"><span>MRP</span><del class="cutoff-price">${money(defaultCutoff)}</del><span class="discount-badge">${defaultDiscount}% OFF</span></div>
+              <small class="price-quantity">for 1 jar</small>
+            </div>
             <div class="card-quantity"><small>Quantity</small><div class="card-qty">
               <button type="button" onclick="changeCardQty(this, -1)" aria-label="Decrease ${product.name} quantity">&minus;</button>
               <span>1</span>
@@ -797,6 +823,8 @@ function renderProduct(id) {
   const product = products.find(p => p.id === id) || products[0];
   const productSizes = sizeOptionsFor(product);
   const defaultOption = defaultSizeOption(product);
+  const defaultCutoff = cutoffPriceFor(product, defaultOption);
+  const defaultDiscount = discountPercentFor(defaultOption.price, defaultCutoff);
   app.innerHTML = `
     <section class="product-detail">
       <div class="breadcrumb">Home &rsaquo; Shop &rsaquo; ${product.type} &rsaquo; ${defaultOption.label}</div>
@@ -813,7 +841,11 @@ function renderProduct(id) {
           <h1>${product.name}</h1>
           <p class="detail-sub">Inspired traditional preparation | 100% Pure & Natural</p>
           <div class="rating">&#9733;&#9733;&#9733;&#9733;&#9733; ${product.rating} (${product.reviews} Reviews) | 1200+ Happy Customers</div>
-          <div class="detail-price" id="detailPrice" data-unit-price="${defaultOption.price}">${money(defaultOption.price)}</div>
+          <div class="detail-price-wrap">
+            <span class="detail-price" id="detailPrice" data-unit-price="${defaultOption.price}" data-old-price="${defaultCutoff}">${money(defaultOption.price)}</span>
+            <del id="detailOldPrice" class="detail-cutoff ${defaultCutoff ? "" : "hidden"}">${money(defaultCutoff)}</del>
+            <span id="detailDiscount" class="discount-badge detail-discount ${defaultCutoff ? "" : "hidden"}">${defaultDiscount}% OFF</span>
+          </div>
           <small>(Inclusive of all taxes)</small>
           <p>${product.desc}</p>
           <div class="assurance">
@@ -822,7 +854,10 @@ function renderProduct(id) {
             <div>${icon("shield-check")}<span>No preservatives</span></div>
           </div>
           <h4>Select Size</h4>
-          <div class="size-grid">${productSizes.map(s => `<button class="size-btn ${s.label === defaultOption.label ? "active" : ""}" data-size="${escapeAttr(s.label)}" onclick="selectSize(this, ${s.price})">${s.label}<br>${money(s.price)}</button>`).join("")}</div>
+          <div class="size-grid">${productSizes.map(s => {
+            const cutoff = cutoffPriceFor(product, s);
+            return `<button class="size-btn ${s.label === defaultOption.label ? "active" : ""}" data-size="${escapeAttr(s.label)}" data-old-price="${cutoff}" onclick="selectSize(this, ${s.price}, ${cutoff})">${s.label}<br>${money(s.price)}${cutoff ? `<small><del>${money(cutoff)}</del></small>` : ""}</button>`;
+          }).join("")}</div>
           <h4>Quantity</h4>
           <div class="qty-row">
             <div class="qty-control"><button onclick="changeDetailQty(-1)">&minus;</button><span id="detailQty">1</span><button onclick="changeDetailQty(1)">+</button></div>
@@ -1803,7 +1838,7 @@ function adminProductSizeEditor(product) {
     <div class="admin-price-editor">
       <div class="admin-price-editor-head">
         <b>Size & Price Options</b>
-        <span>Edit, add, or remove the sizes shown on the product cards.</span>
+        <span>Edit selling prices for each size. The product MRP / cut-off price below is used for the crossed price display.</span>
       </div>
       <div class="admin-size-list" id="p-size-list-${product.id}">
         ${options.map((option, index) => adminSizeRowHtml(product.id, option, index, option.label === defaultOption.label)).join("")}
@@ -1849,7 +1884,7 @@ function adminProducts() {
               <textarea id="p-desc-${product.id}">${product.desc}</textarea>
               <div class="admin-inline">
                 <label class="admin-field">Product Type<input id="p-type-${product.id}" value="${escapeAttr(product.type)}" /></label>
-                <label class="admin-field">MRP / Old Price<input id="p-old-${product.id}" type="number" value="${product.old || defaultSizeOption(product).price}" /></label>
+                <label class="admin-field">MRP / Cut-off Price<input id="p-old-${product.id}" type="number" min="0" value="${product.old || defaultSizeOption(product).price}" /></label>
               </div>
               ${adminProductSizeEditor(product)}
             </div>
@@ -2263,8 +2298,19 @@ function addToCart(id, qty = 1, selection = {}) {
 function updateCardPurchase(purchase) {
   const qty = Math.max(1, Number(purchase.dataset.qty || 1));
   const unitPrice = Number(purchase.dataset.unitPrice || 0);
+  const oldPrice = Number(purchase.dataset.oldPrice || 0);
+  const discount = discountPercentFor(unitPrice, oldPrice);
   purchase.querySelector(".card-qty span").textContent = qty;
   purchase.querySelector(".price").textContent = money(unitPrice * qty);
+  const cutoffRow = purchase.querySelector(".cutoff-row");
+  const cutoffPrice = purchase.querySelector(".cutoff-price");
+  const discountBadge = purchase.querySelector(".discount-badge");
+  if (cutoffRow && cutoffPrice && discountBadge) {
+    const showCutoff = oldPrice > unitPrice;
+    cutoffRow.classList.toggle("hidden", !showCutoff);
+    cutoffPrice.textContent = money(oldPrice * qty);
+    discountBadge.textContent = `${discount}% OFF`;
+  }
   purchase.querySelector(".price-quantity").textContent = `for ${qty} ${qty === 1 ? "jar" : "jars"}`;
   purchase.querySelector(".post-add-actions")?.classList.add("hidden");
   const addButton = purchase.querySelector(".card-add");
@@ -2278,6 +2324,7 @@ function changeCardSize(select) {
   if (!purchase || !selected) return;
   purchase.dataset.size = selected.dataset.size;
   purchase.dataset.unitPrice = selected.value;
+  purchase.dataset.oldPrice = selected.dataset.oldPrice || "0";
   updateCardPurchase(purchase);
 }
 
@@ -2342,10 +2389,11 @@ function setMainImage(src) {
   document.getElementById("mainProductImage").src = src;
 }
 
-function selectSize(btn, price) {
+function selectSize(btn, price, oldPrice = 0) {
   document.querySelectorAll(".size-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("detailPrice").dataset.unitPrice = price;
+  document.getElementById("detailPrice").dataset.oldPrice = oldPrice || btn.dataset.oldPrice || "0";
   updateDetailPrice();
 }
 
@@ -2357,9 +2405,19 @@ function changeDetailQty(delta) {
 
 function updateDetailPrice() {
   const priceNode = document.getElementById("detailPrice");
+  const oldNode = document.getElementById("detailOldPrice");
+  const discountNode = document.getElementById("detailDiscount");
   const qty = Number(document.getElementById("detailQty")?.textContent || 1);
   const unitPrice = Number(priceNode?.dataset.unitPrice || 0);
+  const oldPrice = Number(priceNode?.dataset.oldPrice || 0);
   if (priceNode) priceNode.textContent = money(unitPrice * qty);
+  if (oldNode && discountNode) {
+    const showCutoff = oldPrice > unitPrice;
+    oldNode.classList.toggle("hidden", !showCutoff);
+    discountNode.classList.toggle("hidden", !showCutoff);
+    oldNode.textContent = money(oldPrice * qty);
+    discountNode.textContent = `${discountPercentFor(unitPrice, oldPrice)}% OFF`;
+  }
 }
 
 function switchTab(btn, tab) {
