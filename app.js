@@ -680,7 +680,7 @@ function features() {
         <div class="feature">${icon("heart")}<div><b>Made With Love</b><span>Small batches</span></div></div>
         <div class="feature">${icon("flame")}<div><b>Rich Aroma</b><span>Slow simmered</span></div></div>
         <div class="feature">${icon("shield-check")}<div><b>Hygienic Packing</b><span>Double sealed</span></div></div>
-        <div class="feature">${icon("rotate-ccw")}<div><b>Easy Returns</b><span>7-day support</span></div></div>
+        <div class="feature">${icon("rotate-ccw")}<div><b>Easy Returns</b><span>3-day support</span></div></div>
       </div>
     </section>`;
 }
@@ -1261,45 +1261,341 @@ function renderFaqPage() {
 }
 
 function renderPolicyPage(type) {
+  const updatedOn = "13 July 2026";
+  const supportLine = "For help, contact EE Desi Delights at +91 96666 77434 or eedesidelights@gmail.com.";
   const pages = {
     "shipping-policy": {
       title: "Shipping & Delivery Policy",
-      copy: "Shipping rules for EE Desi Delights ghee orders across Hyderabad and PAN India.",
-      points: [
-        "Hyderabad delivery is estimated in 2-3 working days after order confirmation.",
-        "PAN India standard delivery is estimated in 3-5 working days depending on the pincode.",
-        "Every ghee jar is sealed, cushioned, and packed to reduce leakage or breakage risk.",
-        "Shipping charges are shown during checkout before payment."
+      copy: "Clear shipping, dispatch, packaging, and delivery terms for EE Desi Delights ghee orders.",
+      sections: [
+        {
+          heading: "1. Policy scope",
+          body: [
+            "This Shipping & Delivery Policy applies to all orders placed on the EE Desi Delights website for Cow Ghee, Buffalo Ghee, bulk ghee orders, festive gifting, and related products sold by EE Desi Delights.",
+            "We currently operate from Hyderabad, Telangana, India and support Hyderabad delivery as well as PAN India shipping, subject to courier serviceability, government restrictions, weather, local holidays, and operational feasibility."
+          ]
+        },
+        {
+          heading: "2. Order confirmation and payment status",
+          body: [
+            "An order is considered confirmed only after the order details are received by EE Desi Delights and the payment is successfully authorised and captured through the selected payment method, including Razorpay-supported payment options.",
+            "If a payment fails, times out, remains pending, or is not captured, the order may not be processed for dispatch. In such cases, customers should contact support with the payment reference, order ID, screenshot, and registered phone number."
+          ]
+        },
+        {
+          heading: "3. Processing and dispatch timelines",
+          points: [
+            "Standard processing time is usually 1-2 working days after successful order confirmation.",
+            "Hyderabad delivery is generally estimated within 2-3 working days after dispatch.",
+            "PAN India standard delivery is generally estimated within 3-7 working days after dispatch depending on the destination pincode.",
+            "Remote locations, high-volume festive periods, courier strikes, weather issues, route disruptions, or incorrect addresses may cause delays beyond the estimated timelines."
+          ]
+        },
+        {
+          heading: "4. Shipping charges and taxes",
+          body: [
+            "Shipping charges, packaging charges, discounts, and applicable taxes are displayed at checkout before payment. By placing an order, the customer agrees to the final amount shown at checkout.",
+            "Free shipping, coupon discounts, bulk order rates, and promotional benefits may be changed, paused, or withdrawn by EE Desi Delights at any time before an order is placed."
+          ]
+        },
+        {
+          heading: "5. Packaging standards",
+          body: [
+            "Ghee jars are packed with care using suitable protective packaging to reduce leakage, breakage, or transit damage. Because ghee is a food product and may be packed in jars, customers are requested to inspect the parcel immediately on delivery.",
+            "If the package appears tampered with, leaking, broken, or unusually damaged at the time of delivery, please take photos or a short video before opening it and inform our support team as soon as possible."
+          ]
+        },
+        {
+          heading: "6. Delivery address and location accuracy",
+          points: [
+            "Customers must provide a complete delivery address, correct phone number, pincode, landmark, and any available map/location details during checkout.",
+            "If the customer uses the location/map option, the selected map pin or location link may be used only to support delivery accuracy.",
+            "EE Desi Delights is not responsible for failed delivery caused by incorrect address, unavailable recipient, unreachable phone number, restricted entry, or customer refusal.",
+            "Re-shipping, address correction, or return-to-origin charges may be payable by the customer where the issue is caused by incorrect or incomplete customer information."
+          ]
+        },
+        {
+          heading: "7. Delivery attempts, delays, and tracking",
+          body: [
+            "Delivery partners may make one or more delivery attempts depending on their service rules. Customers should keep their phone reachable after dispatch.",
+            "Tracking details, where available, may be shared by SMS, email, WhatsApp, courier link, or customer support. Delivery timelines are estimates and not guaranteed delivery commitments."
+          ]
+        },
+        {
+          heading: "8. Damaged or missing shipment support",
+          body: [
+            "For damaged, leaked, wrong, or missing items, please contact EE Desi Delights within the return window mentioned in our Returns & Refunds Policy. Photos, videos, outer packaging images, invoice/order details, and product condition may be required for verification.",
+            supportLine
+          ]
+        }
       ]
     },
     "returns-policy": {
       title: "Returns & Refunds Policy",
-      copy: "A customer-friendly policy for damaged, incorrect, or quality concern orders.",
-      points: [
-        "Raise a return request within 7 days of delivery for damaged or incorrect items.",
-        "Food safety rules mean opened jars cannot be returned unless there is a verified quality issue.",
-        "Refunds are processed to the original payment mode after approval.",
-        "Clear photos of packaging and jar condition may be requested for support."
+      copy: "A transparent 3-day return, cancellation, replacement, and Razorpay refund policy for EE Desi Delights customers.",
+      sections: [
+        {
+          heading: "1. Return window",
+          body: [
+            "Customers must raise any return, replacement, refund, missing item, wrong item, damage, leakage, or quality concern request within 3 days from the delivery date. Requests raised after 3 days from delivery may not be accepted.",
+            "This 3-day window is necessary because ghee is a food product and product condition, storage, seal integrity, and transit damage must be verified quickly."
+          ]
+        },
+        {
+          heading: "2. Eligible return and refund cases",
+          points: [
+            "Product received in damaged, broken, leaked, or unsafe condition.",
+            "Wrong product, wrong size, or wrong quantity delivered compared with the confirmed order.",
+            "Missing item from a paid order, after verification against packing and order records.",
+            "Genuine quality concern reported within 3 days, supported by clear photos, videos, batch details, and order information.",
+            "Duplicate or excess payment received for the same order, after payment verification."
+          ]
+        },
+        {
+          heading: "3. Non-returnable and non-refundable cases",
+          points: [
+            "Opened, used, consumed, tampered, damaged after delivery, or improperly stored jars, except where a verified quality issue is accepted by EE Desi Delights.",
+            "Requests raised after 3 days from delivery.",
+            "Change of mind, taste preference, aroma preference, texture preference, or customer ordering the wrong item/size.",
+            "Products returned without approval from EE Desi Delights support.",
+            "Orders affected by incorrect address, unavailable recipient, refused delivery, or customer-side delivery failure.",
+            "Bulk, festive, customised, or special-price orders unless there is verified transit damage, wrong supply, or quality concern."
+          ]
+        },
+        {
+          heading: "4. How to raise a return or refund request",
+          body: [
+            "To raise a request, contact us within 3 days of delivery with your order ID, registered phone number, product name, delivery date, issue description, clear product photos, packaging photos, and a short video where possible.",
+            "For damaged shipments, please preserve the product, jar, cap, invoice, and outer packaging until our team completes verification. Disposal before verification may affect approval."
+          ]
+        },
+        {
+          heading: "5. Inspection and approval",
+          body: [
+            "All return, replacement, and refund requests are subject to verification by EE Desi Delights. We may approve a replacement, partial refund, full refund, coupon adjustment, or reject the request depending on the evidence and product condition.",
+            "Approval is not automatic. Our team may request additional photos, videos, pickup verification, courier report, payment reference, or product batch details before a final decision."
+          ]
+        },
+        {
+          heading: "6. Replacement policy",
+          body: [
+            "Where possible, EE Desi Delights may offer a replacement for damaged, wrong, or missing items instead of a refund. Replacement dispatch depends on product availability, delivery location, courier serviceability, and verification outcome.",
+            "If replacement is not practical or stock is unavailable, we may process an eligible refund to the original payment method."
+          ]
+        },
+        {
+          heading: "7. Cancellation policy",
+          points: [
+            "Orders can be cancelled before dispatch by contacting EE Desi Delights support.",
+            "Once an order is packed, dispatched, handed to the courier, or out for delivery, cancellation may not be possible.",
+            "If a prepaid order is cancelled before dispatch and the cancellation is approved, the eligible refund will be processed to the original payment method.",
+            "Bulk, customised, festive hamper, or special procurement orders may not be cancellable once preparation has started."
+          ]
+        },
+        {
+          heading: "8. Razorpay and online payment refunds",
+          body: [
+            "For orders paid online, approved refunds are normally initiated to the same payment instrument used at checkout through Razorpay or the relevant payment channel. EE Desi Delights does not ask customers for card PIN, UPI PIN, CVV, OTP, or full card details to process a refund.",
+            "After EE Desi Delights initiates an eligible refund, Razorpay and banking partner timelines apply. Normal refunds are generally processed within 5-7 working days and may take up to 7-10 business days to reflect in the customer's bank account, card, UPI, or wallet depending on the payment mode and bank."
+          ]
+        },
+        {
+          heading: "9. Partial refunds and deductions",
+          body: [
+            "A partial refund may be issued if only part of the order is affected, if one item is missing from a multi-item order, or if a mutually agreed settlement is approved.",
+            "Shipping, packaging, convenience, or handling charges may be non-refundable unless the issue is caused by EE Desi Delights or the courier partner. Any deduction will be communicated before refund processing wherever applicable."
+          ]
+        },
+        {
+          heading: "10. Failed, pending, or duplicate payments",
+          body: [
+            "If your payment is debited but the order is not confirmed, please wait for the payment status to update and contact support with the payment ID, bank reference, screenshot, and phone number. Payments that are not successfully captured may be reversed automatically by the payment/banking system.",
+            "Duplicate payments for the same confirmed order will be verified and, if confirmed, refunded to the original payment method."
+          ]
+        },
+        {
+          heading: "11. Contact for returns and refunds",
+          body: [
+            supportLine,
+            "Please do not send any product back without confirmation from EE Desi Delights. Unapproved returns may not be accepted or refunded."
+          ]
+        }
       ]
     },
     "privacy-policy": {
       title: "Privacy Policy",
-      copy: "How the website handles account, cart, checkout, and location information.",
-      points: [
-        "Login, cart, and order information may be stored securely for account and order support.",
-        "Location access is optional and used only to autofill checkout address fields.",
-        "Checkout and order information can be stored in the connected EE Desi Delights Supabase backend.",
-        "Razorpay is loaded only when payment checkout is required."
+      copy: "How EE Desi Delights collects, uses, protects, shares, and retains customer information.",
+      sections: [
+        {
+          heading: "1. Information we collect",
+          body: [
+            "When you browse, create an account, place an order, contact us, use WhatsApp support, submit a bulk enquiry, subscribe to updates, or complete checkout, EE Desi Delights may collect information needed to run the store and fulfil your order.",
+            "This may include your name, phone number, email address, delivery address, pincode, city, state, landmark, order details, cart details, product preferences, coupon usage, payment status, transaction references, refund references, support messages, and delivery instructions."
+          ]
+        },
+        {
+          heading: "2. Location and map information",
+          body: [
+            "If you choose to use the location or map feature during checkout, your browser may ask for permission to share your approximate or precise location. This is optional and is used to help fill the delivery address and create a map link for delivery accuracy.",
+            "You can edit the address and map pin before placing the order. If you do not want to share location data, you can manually enter your address."
+          ]
+        },
+        {
+          heading: "3. Payment information and Razorpay",
+          body: [
+            "Online payments may be processed through Razorpay. Razorpay may collect and process payment-related information such as payment method, payment ID, order ID, transaction status, bank response, and refund status as required to complete the payment.",
+            "EE Desi Delights does not store your full card number, CVV, OTP, UPI PIN, net-banking password, or other sensitive payment authentication details. These are handled by Razorpay, banks, card networks, UPI apps, and authorised payment partners through their secure systems."
+          ]
+        },
+        {
+          heading: "4. How we use information",
+          points: [
+            "To confirm, pack, ship, deliver, replace, cancel, or refund orders.",
+            "To verify payment status, prevent payment fraud, manage chargebacks, and reconcile transactions.",
+            "To provide customer support through phone, email, WhatsApp, or other support channels.",
+            "To send order updates, delivery updates, invoice details, refund updates, and service messages.",
+            "To improve products, website experience, packaging, delivery operations, and customer service.",
+            "To comply with accounting, tax, legal, regulatory, security, and dispute-resolution obligations."
+          ]
+        },
+        {
+          heading: "5. Sharing of information",
+          body: [
+            "We may share necessary information with payment processors such as Razorpay, courier/logistics partners, hosting providers, database providers, analytics or support tools, professional advisors, government authorities, or law enforcement where required.",
+            "We do not sell customer personal information. Information is shared only where needed for order fulfilment, payment processing, customer support, compliance, security, or business operations."
+          ]
+        },
+        {
+          heading: "6. Cookies, browser storage, and website tools",
+          body: [
+            "The website may use cookies, browser storage, and similar technologies to remember cart items, login/session status, preferences, checkout information, and basic website functionality.",
+            "You can control cookies and storage through your browser settings, but disabling them may affect cart, checkout, login, and account functionality."
+          ]
+        },
+        {
+          heading: "7. Data retention",
+          body: [
+            "We retain order, payment, invoice, customer, and support information for as long as needed to fulfil orders, handle refunds, provide support, prevent fraud, comply with legal/tax obligations, resolve disputes, and maintain business records.",
+            "Where information is no longer needed, we may delete, archive, anonymise, or securely retain it according to operational and legal requirements."
+          ]
+        },
+        {
+          heading: "8. Security",
+          body: [
+            "We use reasonable administrative, technical, and organisational measures to protect customer information. However, no website, internet transmission, payment system, or storage method can be guaranteed to be completely secure.",
+            "Customers should never share OTP, UPI PIN, CVV, net-banking password, or sensitive payment credentials with anyone claiming to represent EE Desi Delights."
+          ]
+        },
+        {
+          heading: "9. Customer choices and requests",
+          body: [
+            "Customers may contact us to update account details, correct delivery information, request order support, unsubscribe from promotional communication, or ask questions about personal information.",
+            supportLine
+          ]
+        },
+        {
+          heading: "10. Policy updates",
+          body: [
+            "We may update this Privacy Policy from time to time to reflect business, legal, technical, or payment processing changes. The latest version will be posted on this website with the updated date."
+          ]
+        }
       ]
     },
     terms: {
       title: "Terms & Conditions",
-      copy: "Terms for using the EE Desi Delights ecommerce website.",
-      points: [
-        "Product prices, delivery timelines, and offers can be updated from the admin panel.",
-        "Razorpay live/test mode depends on the keys configured in Vercel.",
-        "Images and copy are prepared for presentation and can be replaced with final business assets.",
-        "By placing an order, you agree that your order details may be stored for fulfilment and support."
+      copy: "The terms that govern browsing, ordering, payments, delivery, returns, and use of the EE Desi Delights website.",
+      sections: [
+        {
+          heading: "1. Acceptance of terms",
+          body: [
+            "By accessing the EE Desi Delights website, browsing products, creating an account, using checkout, placing an order, making a payment, or contacting us for support, you agree to these Terms & Conditions along with our Shipping & Delivery Policy, Returns & Refunds Policy, and Privacy Policy.",
+            "If you do not agree with these terms, please do not use the website or place an order."
+          ]
+        },
+        {
+          heading: "2. Brand and products",
+          body: [
+            "EE Desi Delights sells ghee products including Cow Ghee, Buffalo Ghee, and related packs or bulk order offerings. Product information, images, labels, prices, sizes, ingredients, benefits, descriptions, and availability are provided for customer guidance.",
+            "We try to keep product information accurate, but minor variations in colour, texture, graininess, aroma, jar appearance, label finish, packaging, or batch presentation may occur due to photography, screen settings, natural product characteristics, and packaging updates."
+          ]
+        },
+        {
+          heading: "3. Pricing, offers, and availability",
+          points: [
+            "Prices are displayed in Indian Rupees and may include or exclude charges as shown at checkout.",
+            "Shipping, packaging, taxes, discounts, coupons, and final payable amount are displayed before payment.",
+            "Prices, product sizes, stock availability, offers, and coupons may change without prior notice before an order is placed.",
+            "If a pricing, stock, or technical error occurs, EE Desi Delights may contact the customer, cancel the order, issue a refund, or request confirmation before processing."
+          ]
+        },
+        {
+          heading: "4. Accounts and customer responsibility",
+          body: [
+            "Customers are responsible for providing correct name, phone number, email, address, pincode, landmark, and delivery instructions. EE Desi Delights is not responsible for delay or failed delivery caused by incorrect or incomplete customer information.",
+            "Customers must keep account and login details secure and should not misuse the website, place fraudulent orders, submit false claims, interfere with website functionality, or attempt unauthorised access."
+          ]
+        },
+        {
+          heading: "5. Orders and acceptance",
+          body: [
+            "Placing an order is an offer to purchase the selected products. EE Desi Delights may accept, reject, cancel, hold, or modify an order where payment fails, stock is unavailable, the address is not serviceable, fraud is suspected, bulk confirmation is pending, or a pricing/technical error is found.",
+            "An order is normally processed only after successful payment confirmation and internal order validation."
+          ]
+        },
+        {
+          heading: "6. Payments through Razorpay",
+          body: [
+            "Online payments may be processed through Razorpay-supported payment methods such as UPI, cards, net banking, wallets, or other enabled modes. Payment approval is subject to Razorpay, bank, card network, UPI, wallet, and issuer rules.",
+            "EE Desi Delights does not control bank authorisation decisions, payment failures, downtime, chargeback decisions, or settlement delays. Customers should ensure that payment details are accurate and that they complete payment only through the secure checkout flow."
+          ]
+        },
+        {
+          heading: "7. Shipping, cancellation, returns, and refunds",
+          body: [
+            "Shipping and delivery are governed by our Shipping & Delivery Policy. Cancellations, replacements, returns, and refunds are governed by our Returns & Refunds Policy.",
+            "Because ghee is a food product, returns are limited and must be raised within 3 days from delivery as described in the Returns & Refunds Policy."
+          ]
+        },
+        {
+          heading: "8. Bulk orders and custom requirements",
+          body: [
+            "Bulk orders, festive hampers, corporate gifting, restaurant requirements, and custom quantities may require separate confirmation, quotation, advance payment, delivery timelines, and cancellation terms.",
+            "A bulk enquiry does not guarantee order acceptance until product availability, pricing, payment, and dispatch plan are confirmed by EE Desi Delights."
+          ]
+        },
+        {
+          heading: "9. Intellectual property",
+          body: [
+            "All website content including brand name, logo, product images, text, design, layout, graphics, icons, and overall presentation belongs to EE Desi Delights or its licensors unless otherwise stated.",
+            "Customers may not copy, reproduce, modify, sell, misuse, or commercially exploit website content without written permission."
+          ]
+        },
+        {
+          heading: "10. Limitation of liability",
+          body: [
+            "To the maximum extent permitted by law, EE Desi Delights is not liable for indirect, incidental, consequential, special, or punitive damages arising from website use, payment failure, courier delay, product unavailability, incorrect customer information, or third-party service issues.",
+            "Our maximum liability for an accepted claim related to an order will generally be limited to the amount paid by the customer for the affected product or order, subject to verification and applicable law."
+          ]
+        },
+        {
+          heading: "11. Force majeure",
+          body: [
+            "EE Desi Delights will not be responsible for failure or delay caused by events beyond reasonable control, including natural disasters, severe weather, strikes, supply issues, courier disruption, internet/payment downtime, government action, local restrictions, pandemic-related issues, or other force majeure events."
+          ]
+        },
+        {
+          heading: "12. Governing law and jurisdiction",
+          body: [
+            "These Terms & Conditions are governed by the laws of India. Subject to applicable law, courts or competent forums in Hyderabad, Telangana will have jurisdiction over disputes related to website use, orders, products, payments, or policies."
+          ]
+        },
+        {
+          heading: "13. Contact",
+          body: [
+            supportLine,
+            "Business location: Hyderabad, Telangana, India."
+          ]
+        }
       ]
     }
   };
@@ -1308,10 +1604,25 @@ function renderPolicyPage(type) {
     ${pageHero(page.title, page.copy)}
     <section class="section">
       <div class="section-inner">
-        <div class="checkout-box">
-          <h2>${page.title}</h2>
-          <p>${page.copy}</p>
-          <ul class="check-list">${page.points.map(point => `<li>${icon("check-circle")} ${point}</li>`).join("")}</ul>
+        <div class="checkout-box policy-box">
+          <div class="policy-intro">
+            <span class="eyebrow">Last updated: ${updatedOn}</span>
+            <h2>${page.title}</h2>
+            <p>${page.copy}</p>
+          </div>
+          ${page.sections.map(section => `
+            <article class="policy-section">
+              <h3>${section.heading}</h3>
+              ${(section.body || []).map(paragraph => `<p>${paragraph}</p>`).join("")}
+              ${section.points ? `<ul class="check-list">${section.points.map(point => `<li>${icon("check-circle")} ${point}</li>`).join("")}</ul>` : ""}
+            </article>
+          `).join("")}
+          <div class="policy-contact-card">
+            <h3>Need help?</h3>
+            <p><b>Phone:</b> +91 96666 77434</p>
+            <p><b>Email:</b> eedesidelights@gmail.com</p>
+            <p><b>Address:</b> Hyderabad, Telangana, India</p>
+          </div>
         </div>
       </div>
     </section>`;
@@ -2045,7 +2356,7 @@ function switchTab(btn, tab) {
     "Ingredients": "Pure milk fat from quality cow or buffalo milk. No preservatives, no artificial flavors, no chemicals.",
     "How It's Made": "Curd is churned, butter is separated, and the butter is slowly simmered until golden and aromatic.",
     "Storage": "Store in a cool, dry place. Always use a clean dry spoon and keep the jar tightly closed.",
-    "Shipping & Returns": "Standard delivery takes 3-5 working days. Return support is available within 7 days."
+    "Shipping & Returns": "Standard delivery takes 3-5 working days. Return support is available within 3 days from delivery."
   };
   document.getElementById("tabText").innerHTML = `<p>${copy[tab]}</p><ul class="check-list"><li>${icon("check-circle")} 100% natural</li><li>${icon("check-circle")} Packed with care</li><li>${icon("check-circle")} Traditional taste</li></ul>`;
   refreshIcons();
