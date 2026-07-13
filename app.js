@@ -293,6 +293,20 @@ async function saveCloudHeroSlide(index) {
   return !error;
 }
 
+async function syncFinalAssetsToCloud() {
+  if (!supabaseClient || !cloudReady || !state.admin?.cloud) return false;
+  const productUpdates = products.map(product =>
+    supabaseClient.from("products").update({ img: finalProductImage(product) }).eq("id", product.id)
+  );
+  const heroUpdates = heroSlides
+    .map((slide, index) => slide.dbId
+      ? supabaseClient.from("hero_slides").update({ image: finalHeroImage(index) }).eq("id", slide.dbId)
+      : null)
+    .filter(Boolean);
+  const results = await Promise.all([...productUpdates, ...heroUpdates]);
+  return results.every(result => !result.error);
+}
+
 async function saveCloudOrder(order) {
   if (!supabaseClient || !cloudReady) return false;
   const address = {
@@ -1979,6 +1993,7 @@ async function adminLogin(event) {
     state.admin = { email, name: "EE Desi Delights Admin", cloud: true, loginAt: new Date().toISOString() };
     save();
     await loadCloudStore();
+    await syncFinalAssetsToCloud();
     await loadCloudOrders();
     showToast("Admin login successful");
     if (location.hash === "#admin") {
