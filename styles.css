@@ -485,7 +485,7 @@ p { color: var(--muted); line-height: 1.75; }
   margin: 0 auto;
   box-shadow: var(--shadow);
 }
-.admin-demo-box {
+.admin-info-box {
   background: var(--cream);
   border: 1px solid var(--line);
   border-radius: 8px;

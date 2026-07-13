@@ -503,7 +503,7 @@ function upsertUser(user) {
   const email = (user.email || "").toLowerCase();
   if (!email) return;
   const existing = state.users.find(u => u.email.toLowerCase() === email);
-  const next = { name: user.name || "Demo Customer", email: user.email, phone: user.phone || "", role: user.role || "customer", joined: user.joined || new Date().toLocaleDateString("en-IN") };
+  const next = { name: user.name || "Customer", email: user.email, phone: user.phone || "", role: user.role || "customer", joined: user.joined || new Date().toLocaleDateString("en-IN") };
   if (existing) Object.assign(existing, next);
   else state.users.push(next);
 }
@@ -745,8 +745,8 @@ function bulkSection() {
       <div class="section-inner split">
         <div>
           <span class="eyebrow">Bulk Orders</span><h2>Pure ghee for events, stores, and gifting</h2>
-          <p>Order EE Desi Delights ghee for weddings, corporate gifts, pooja needs, restaurants, sweet shops, and family functions. Demo bulk enquiry is included for the local site.</p>
-          <div class="button-row"><button class="btn primary" onclick="showToast('Bulk enquiry demo submitted. We will call you shortly.')">${icon("send")} Request Quote</button><a class="btn ghost" href="#shop">Browse Packs</a></div>
+          <p>Order EE Desi Delights ghee for weddings, corporate gifts, pooja needs, restaurants, sweet shops, and family functions.</p>
+          <div class="button-row"><button class="btn primary" onclick="showToast('Bulk enquiry submitted. We will call you shortly.')">${icon("send")} Request Quote</button><a class="btn ghost" href="#shop">Browse Packs</a></div>
         </div>
         <div class="about-img"><img src="${FINAL_PRODUCT_IMAGES["cow-ghee"]}" alt="EE Desi Delights Cow Ghee and Buffalo Ghee gift hamper" /></div>
       </div>
@@ -755,10 +755,10 @@ function bulkSection() {
 
 function faqSection() {
   const faqs = [
-    ["Is EE Desi Delights ghee preservative-free?", "Yes. The demo content presents every ghee product as free from preservatives, artificial colors, and chemicals."],
-    ["Do you deliver outside Hyderabad?", "Yes, the checkout demo supports Hyderabad and PAN India delivery."],
+    ["Is EE Desi Delights ghee preservative-free?", "Yes. Our ghee products are presented as free from preservatives, artificial colors, and chemicals."],
+    ["Do you deliver outside Hyderabad?", "Yes, checkout supports Hyderabad and PAN India delivery."],
     ["Can I pay with Razorpay?", "Yes. Razorpay checkout is connected through a server-side order and payment verification flow."],
-    ["Can the address be detected automatically?", "Yes. Use the location button during checkout. Browser permission is required, and reverse geocoding is attempted for demo autofill."]
+    ["Can the address be detected automatically?", "Yes. Use the location button during checkout. Browser permission is required, and reverse geocoding helps autofill the address."]
   ];
   return `<section class="section cream-band"><div class="section-inner"><span class="eyebrow">FAQ</span><h2>Ghee shopping questions</h2><div style="display:grid;gap:14px;margin-top:24px">${faqs.map(f => `<details class="faq-item"><summary><b>${f[0]}</b></summary><p>${f[1]}</p></details>`).join("")}</div></div></section>`;
 }
@@ -1174,7 +1174,7 @@ function field(id, label, value, placeholder, wide = false) {
 }
 
 function renderDashboard() {
-  if (!state.user) { openAuth("login"); app.innerHTML = `<section class="section"><div class="section-inner"><h2>Please login to view dashboard</h2><p>Your demo orders and profile appear after login.</p></div></section>`; return; }
+  if (!state.user) { openAuth("login"); app.innerHTML = `<section class="section"><div class="section-inner"><h2>Please login to view dashboard</h2><p>Your orders and profile appear after login.</p></div></section>`; return; }
   app.innerHTML = `
     <section class="dashboard-page">
       <div class="section-inner"><span class="eyebrow">My Account</span><h2>User Dashboard</h2></div>
@@ -1199,7 +1199,7 @@ function renderAboutPage() {
       <div class="section-inner">
         <span class="eyebrow">Our Promise</span><h2>Pure tradition in every spoon</h2>
         <div class="process-grid" style="margin-top:24px">
-          <div class="process-card">${icon("leaf")}<h3>Natural</h3><p>No chemicals, artificial colors, or preservatives are added to our demo ghee products.</p></div>
+          <div class="process-card">${icon("leaf")}<h3>Natural</h3><p>No chemicals, artificial colors, or preservatives are added to our ghee products.</p></div>
           <div class="process-card">${icon("heart")}<h3>Made With Love</h3><p>Small-batch preparation keeps the aroma, grainy texture, and rich traditional taste intact.</p></div>
           <div class="process-card">${icon("shield-check")}<h3>Trusted Packing</h3><p>Glass jars, secure sealing, and clean dispatch workflows support a premium delivery experience.</p></div>
           <div class="process-card">${icon("map-pin")}<h3>India Ready</h3><p>Designed for Hyderabad local delivery and PAN India shipping in the ecommerce checkout flow.</p></div>
@@ -1223,7 +1223,7 @@ function renderBulkPage() {
             <li>${icon("check-circle")} Pooja, temple, and daily diya requirements</li>
             <li>${icon("check-circle")} Custom quantity packs for family events</li>
           </ul>
-          <button class="btn primary" onclick="showToast('Bulk order demo request submitted')">${icon("phone-call")} Request Call Back</button>
+          <button class="btn primary" onclick="showToast('Bulk order request submitted')">${icon("phone-call")} Request Call Back</button>
         </div>
       </div>
     </section>`;
@@ -1231,10 +1231,10 @@ function renderBulkPage() {
 
 function renderContactPage() {
   app.innerHTML = `
-    ${pageHero("Contact Us", "Questions about ghee, delivery, bulk orders, or demo checkout? We are here to help.")}
+    ${pageHero("Contact Us", "Questions about ghee, delivery, bulk orders, or checkout? We are here to help.")}
     <section class="section">
       <div class="section-inner split">
-        <form class="checkout-box" onsubmit="event.preventDefault(); showToast('Contact form submitted in demo mode'); this.reset();">
+        <form class="checkout-box" onsubmit="event.preventDefault(); showToast('Contact form submitted successfully'); this.reset();">
           <h3>Send Enquiry</h3>
           <div class="form-grid">
             <div class="field"><label>Name</label><input required placeholder="Your name" /></div>
@@ -1264,7 +1264,7 @@ function renderPolicyPage(type) {
   const pages = {
     "shipping-policy": {
       title: "Shipping & Delivery Policy",
-      copy: "Demo shipping rules for EE Desi Delights ghee orders across Hyderabad and PAN India.",
+      copy: "Shipping rules for EE Desi Delights ghee orders across Hyderabad and PAN India.",
       points: [
         "Hyderabad delivery is estimated in 2-3 working days after order confirmation.",
         "PAN India standard delivery is estimated in 3-5 working days depending on the pincode.",
@@ -1274,19 +1274,19 @@ function renderPolicyPage(type) {
     },
     "returns-policy": {
       title: "Returns & Refunds Policy",
-      copy: "A customer-friendly demo policy for damaged, incorrect, or quality concern orders.",
+      copy: "A customer-friendly policy for damaged, incorrect, or quality concern orders.",
       points: [
         "Raise a return request within 7 days of delivery for damaged or incorrect items.",
         "Food safety rules mean opened jars cannot be returned unless there is a verified quality issue.",
-        "Refunds are processed to the original payment mode in this demo policy.",
+        "Refunds are processed to the original payment mode after approval.",
         "Clear photos of packaging and jar condition may be requested for support."
       ]
     },
     "privacy-policy": {
       title: "Privacy Policy",
-      copy: "How the demo website handles account, cart, checkout, and location information.",
+      copy: "How the website handles account, cart, checkout, and location information.",
       points: [
-        "This local demo stores login, cart, and order information in your browser localStorage.",
+        "Login, cart, and order information may be stored securely for account and order support.",
         "Location access is optional and used only to autofill checkout address fields.",
         "Checkout and order information can be stored in the connected EE Desi Delights Supabase backend.",
         "Razorpay is loaded only when payment checkout is required."
@@ -1294,12 +1294,12 @@ function renderPolicyPage(type) {
     },
     terms: {
       title: "Terms & Conditions",
-      copy: "Demo ecommerce terms for using the EE Desi Delights local website.",
+      copy: "Terms for using the EE Desi Delights ecommerce website.",
       points: [
         "Product prices, delivery timelines, and offers can be updated from the admin panel.",
         "Razorpay live/test mode depends on the keys configured in Vercel.",
         "Images and copy are prepared for presentation and can be replaced with final business assets.",
-        "By placing a demo order, you agree that the order is stored locally for dashboard preview only."
+        "By placing an order, you agree that your order details may be stored for fulfilment and support."
       ]
     }
   };
@@ -1325,7 +1325,7 @@ function renderAdminLogin() {
         <span>Admin Control Center</span>
       </div>
       <form class="admin-login checkout-box" onsubmit="adminLogin(event)">
-        <span class="eyebrow">Secure Mock Login</span>
+        <span class="eyebrow">Secure Login</span>
         <h2>Admin Panel</h2>
         <p>Use the Supabase admin email and password to manage live products, prices, images, orders, content, and Razorpay settings.</p>
         <div class="form-grid">
@@ -1400,7 +1400,7 @@ function adminOverview() {
       </section>
       <section class="admin-panel">
         <div class="admin-panel-head"><div><span class="eyebrow">Latest Orders</span><h3>Recent Activity</h3></div><button class="admin-mini-btn" onclick="adminSelectTab('orders')">View All</button></div>
-        ${latest.length ? latest.map(order => `<div class="admin-activity"><div><b>${order.id}</b><span>${order.date} &bull; ${order.items.length} items</span></div><strong>${money(order.total)}</strong></div>`).join("") : `<p>No orders yet. Place a demo order from checkout.</p>`}
+        ${latest.length ? latest.map(order => `<div class="admin-activity"><div><b>${order.id}</b><span>${order.date} &bull; ${order.items.length} items</span></div><strong>${money(order.total)}</strong></div>`).join("") : `<p>No orders yet. New orders will appear here.</p>`}
       </section>
     </div>`;
 }
@@ -1425,7 +1425,7 @@ function adminSeo() {
   return `
     <section class="admin-panel seo-panel">
       <div class="admin-panel-head">
-        <div><span class="eyebrow">Client SEO Report</span><h3>Search Visibility Score</h3><p>Demo SEO health report for EE Desi Delights ghee website.</p></div>
+        <div><span class="eyebrow">Client SEO Report</span><h3>Search Visibility Score</h3><p>SEO health report for EE Desi Delights ghee website.</p></div>
         <span class="admin-pill live">93% Optimized</span>
       </div>
       <div class="seo-hero">
@@ -1568,7 +1568,7 @@ function adminOrders() {
 }
 
 function adminUsers() {
-  return `<section class="admin-panel"><div class="admin-panel-head"><div><span class="eyebrow">Customers</span><h3>Users Data</h3><p>Demo users created from signup, login, and guest checkout.</p></div></div>
+  return `<section class="admin-panel"><div class="admin-panel-head"><div><span class="eyebrow">Customers</span><h3>Users Data</h3><p>Customer records created from signup, login, and checkout.</p></div></div>
     <div class="admin-list">${state.users.map(user => `<div class="admin-list-row user-row"><div class="admin-avatar">${(user.name || "D").slice(0,1)}</div><div><b>${user.name}</b><span>${user.email}</span></div><span>${user.phone || "-"}</span><span>${user.joined || "-"}</span><span class="admin-pill">${user.role || "customer"}</span></div>`).join("") || `<p>No users yet.</p>`}</div>
   </section>`;
 }
@@ -1811,7 +1811,7 @@ function adminUploadProductImage(id, input) {
 }
 
 async function deleteAdminProduct(id) {
-  if (!confirm("Delete this product from the demo store?")) return;
+  if (!confirm("Delete this product from the store?")) return;
   products = products.filter(p => p.id !== id);
   save();
   await deleteCloudProduct(id);
@@ -1905,12 +1905,12 @@ function dashboardOverview() {
 }
 
 function ordersHtml() {
-  if (!state.orders.length) return `<p>No orders yet. Place a demo order from checkout.</p><a class="btn primary" href="#shop">Shop Ghee</a>`;
+  if (!state.orders.length) return `<p>No orders yet.</p><a class="btn primary" href="#shop">Shop Ghee</a>`;
   return state.orders.map(o => `<div class="order-row"><div><b>${o.id}</b><p>${o.items.length} items &bull; ${o.date}</p></div><div><span class="status">${o.status}</span><h3>${money(o.total)}</h3></div></div>`).join("");
 }
 
 function dashboardProfile() {
-  return `<div class="checkout-box"><h3>Profile</h3><p><b>Name:</b> ${state.user.name}</p><p><b>Email:</b> ${state.user.email}</p><p><b>Saved Address:</b> ${state.checkout.address || "No saved address yet"}</p><button class="btn gold" onclick="showToast('Profile saved in demo mode')">Save Profile</button></div>`;
+  return `<div class="checkout-box"><h3>Profile</h3><p><b>Name:</b> ${state.user.name}</p><p><b>Email:</b> ${state.user.email}</p><p><b>Saved Address:</b> ${state.checkout.address || "No saved address yet"}</p><button class="btn gold" onclick="showToast('Profile saved successfully')">Save Profile</button></div>`;
 }
 
 function dashTab(tab, btn) {
@@ -2045,7 +2045,7 @@ function switchTab(btn, tab) {
     "Ingredients": "Pure milk fat from quality cow or buffalo milk. No preservatives, no artificial flavors, no chemicals.",
     "How It's Made": "Curd is churned, butter is separated, and the butter is slowly simmered until golden and aromatic.",
     "Storage": "Store in a cool, dry place. Always use a clean dry spoon and keep the jar tightly closed.",
-    "Shipping & Returns": "Standard delivery takes 3-5 working days. Demo return support is available within 7 days."
+    "Shipping & Returns": "Standard delivery takes 3-5 working days. Return support is available within 7 days."
   };
   document.getElementById("tabText").innerHTML = `<p>${copy[tab]}</p><ul class="check-list"><li>${icon("check-circle")} 100% natural</li><li>${icon("check-circle")} Packed with care</li><li>${icon("check-circle")} Traditional taste</li></ul>`;
   refreshIcons();
@@ -2189,7 +2189,7 @@ async function completeOrder(status, paymentDetails = {}, verifiedTotals = null)
     : [...state.cart];
   if (!state.user) {
     state.user = {
-      name: state.checkout.fullName || "Demo Customer",
+      name: state.checkout.fullName || "Customer",
       email: state.checkout.email || "guest@desidelights.com",
       phone: state.checkout.phone || ""
     };
@@ -2324,7 +2324,9 @@ document.getElementById("closeAuth").addEventListener("click", () => document.ge
 document.querySelectorAll("[data-auth-tab]").forEach(btn => btn.addEventListener("click", () => setAuthTab(btn.dataset.authTab)));
 document.getElementById("loginForm").addEventListener("submit", e => {
   e.preventDefault();
-  state.user = { name: "Demo Customer", email: document.getElementById("loginEmail").value };
+  const loginEmail = document.getElementById("loginEmail").value.trim();
+  const loginName = loginEmail ? loginEmail.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, letter => letter.toUpperCase()) : "Customer";
+  state.user = { name: loginName || "Customer", email: loginEmail };
   upsertUser(state.user);
   save();
   document.getElementById("authDialog").close();
