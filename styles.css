@@ -232,7 +232,7 @@ p { color: var(--muted); line-height: 1.75; }
   padding: 96px 44px;
   background:
     linear-gradient(90deg, rgba(15,61,46,.94), rgba(15,61,46,.72)),
-    url("assets/hero-ghee-food.png") center / cover no-repeat;
+    url("assets/cow-ghee-final-client.png?v=20260713-client-final") center / cover no-repeat;
   color: var(--cream);
 }
 .page-hero .section-inner { max-width: 980px; margin: 0 auto; text-align: center; }
@@ -460,7 +460,7 @@ p { color: var(--muted); line-height: 1.75; }
   padding: 34px;
   background:
     linear-gradient(135deg, rgba(247,242,230,.95), rgba(247,242,230,.82)),
-    url("assets/hero-ghee-food.png") center / cover no-repeat;
+    url("assets/cow-ghee-final-client.png?v=20260713-client-final") center / cover no-repeat;
 }
 .admin-auth-brand {
   text-align: center;
@@ -508,7 +508,7 @@ p { color: var(--muted); line-height: 1.75; }
   padding: 26px 18px;
   background:
     linear-gradient(180deg, rgba(7,44,32,.96), rgba(15,61,46,.98)),
-    url("assets/ghee-gift-hamper.png") center / cover no-repeat;
+    url("assets/buffalo-ghee-final-client.png?v=20260713-client-final") center / cover no-repeat;
   background-blend-mode: multiply;
   color: var(--cream);
   display: flex;

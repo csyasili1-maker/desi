@@ -232,8 +232,8 @@ using (public.is_admin());
 
 insert into public.products (id, name, type, price, old, size, badge, img, rating, reviews, description, sort_order)
 values
-  ('cow-ghee', 'Cow Ghee', 'Cow Ghee', 799, 899, '500 ml', 'Best Seller', 'assets/cow-ghee-ee.png', 4.8, 256, 'Pure cow ghee, slow-crafted with an inspired traditional preparation for rich aroma, taste, and purity.', 1),
-  ('buffalo-ghee', 'Buffalo Ghee', 'Buffalo Ghee', 699, 799, '500 ml', 'Rich Aroma', 'assets/buffalo-ghee-ee.png', 4.7, 189, 'Thick, creamy buffalo ghee with a deep traditional flavor for sweets, rice, and everyday cooking.', 2)
+  ('cow-ghee', 'Cow Ghee', 'Cow Ghee', 799, 899, '500 ml', 'Best Seller', 'assets/cow-ghee-final-client.png?v=20260713-client-final', 4.8, 256, 'Pure cow ghee, slow-crafted with an inspired traditional preparation for rich aroma, taste, and purity.', 1),
+  ('buffalo-ghee', 'Buffalo Ghee', 'Buffalo Ghee', 699, 799, '500 ml', 'Rich Aroma', 'assets/buffalo-ghee-final-client.png?v=20260713-client-final', 4.7, 189, 'Thick, creamy buffalo ghee with a deep traditional flavor for sweets, rice, and everyday cooking.', 2)
 on conflict (id) do update set
   name = excluded.name,
   type = excluded.type,
@@ -262,9 +262,9 @@ values
 
 insert into public.hero_slides (image, eyebrow, title, copy, cta, link, sort_order)
 values
-  ('assets/hero-ghee-food.png', 'Premium Indian Ghee', 'Pure Ghee, Slow-Crafted for Indian Homes', 'Golden aroma, traditional taste, and everyday nourishment in every spoon of EE Desi Delights ghee.', 'Shop Ghee', '#shop', 1),
-  ('assets/buffalo-ghee-ee.png', 'Cow & Buffalo Ghee', 'Two Pure Choices for Every Kitchen', 'Choose pure cow ghee or rich buffalo ghee, both slow-crafted for authentic flavor.', 'View Products', '#products', 2),
-  ('assets/ghee-gift-hamper-ee.png', 'Festive Bulk Orders', 'Traditional Ghee Gifts with a Premium Finish', 'Create memorable wedding, corporate, and festive hampers with EE Desi Delights green-gold packaging.', 'Bulk Enquiry', '#bulk', 3)
+  ('assets/cow-ghee-final-client.png?v=20260713-client-final', 'Premium Indian Ghee', 'Pure Ghee, Slow-Crafted for Indian Homes', 'Golden aroma, traditional taste, and everyday nourishment in every spoon of EE Desi Delights ghee.', 'Shop Ghee', '#shop', 1),
+  ('assets/buffalo-ghee-final-client.png?v=20260713-client-final', 'Cow & Buffalo Ghee', 'Two Pure Choices for Every Kitchen', 'Choose pure cow ghee or rich buffalo ghee, both slow-crafted for authentic flavor.', 'View Products', '#products', 2),
+  ('assets/cow-ghee-final-client.png?v=20260713-client-final', 'Festive Bulk Orders', 'Traditional Ghee Gifts with a Premium Finish', 'Create memorable wedding, corporate, and festive hampers with EE Desi Delights green-gold packaging.', 'Bulk Enquiry', '#bulk', 3)
 on conflict do nothing;
 
 insert into public.site_settings (key, value)

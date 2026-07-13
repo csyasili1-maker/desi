@@ -9,14 +9,39 @@ const SUPABASE_SCRIPT_URLS = [
 let supabaseClient = null;
 let cloudReady = false;
 
+const FINAL_IMAGE_VERSION = "20260713-client-final";
+const FINAL_PRODUCT_IMAGES = {
+  "cow-ghee": `assets/cow-ghee-final-client.png?v=${FINAL_IMAGE_VERSION}`,
+  "buffalo-ghee": `assets/buffalo-ghee-final-client.png?v=${FINAL_IMAGE_VERSION}`
+};
+
+function finalProductImage(product = {}) {
+  const productText = `${product.id || ""} ${product.name || ""} ${product.type || ""}`.toLowerCase();
+  if (productText.includes("buffalo")) return FINAL_PRODUCT_IMAGES["buffalo-ghee"];
+  if (productText.includes("cow")) return FINAL_PRODUCT_IMAGES["cow-ghee"];
+  return product.img || FINAL_PRODUCT_IMAGES["cow-ghee"];
+}
+
+function normalizeProductImages(productList = []) {
+  return productList.map(product => ({ ...product, img: finalProductImage(product) }));
+}
+
+function finalHeroImage(index = 0) {
+  return index % 2 === 1 ? FINAL_PRODUCT_IMAGES["buffalo-ghee"] : FINAL_PRODUCT_IMAGES["cow-ghee"];
+}
+
+function normalizeHeroImages(slideList = []) {
+  return slideList.map((slide, index) => ({ ...slide, image: finalHeroImage(index) }));
+}
+
 const defaultProducts = [
-  { id: "cow-ghee", name: "Cow Ghee", type: "Cow Ghee", price: 799, old: 899, size: "500 ml", badge: "Best Seller", img: "assets/cow-ghee-ee.png", rating: 4.8, reviews: 256, desc: "Pure cow ghee, slow-crafted with an inspired traditional preparation for rich aroma, taste, and purity." },
-  { id: "buffalo-ghee", name: "Buffalo Ghee", type: "Buffalo Ghee", price: 699, old: 799, size: "500 ml", badge: "Rich Aroma", img: "assets/buffalo-ghee-ee.png", rating: 4.7, reviews: 189, desc: "Thick, creamy buffalo ghee with a deep traditional flavor for sweets, rice, and everyday cooking." }
+  { id: "cow-ghee", name: "Cow Ghee", type: "Cow Ghee", price: 799, old: 899, size: "500 ml", badge: "Best Seller", img: FINAL_PRODUCT_IMAGES["cow-ghee"], rating: 4.8, reviews: 256, desc: "Pure cow ghee, slow-crafted with an inspired traditional preparation for rich aroma, taste, and purity." },
+  { id: "buffalo-ghee", name: "Buffalo Ghee", type: "Buffalo Ghee", price: 699, old: 799, size: "500 ml", badge: "Rich Aroma", img: FINAL_PRODUCT_IMAGES["buffalo-ghee"], rating: 4.7, reviews: 189, desc: "Thick, creamy buffalo ghee with a deep traditional flavor for sweets, rice, and everyday cooking." }
 ];
 
 const defaultHeroSlides = [
   {
-    image: "assets/hero-ghee-food.png",
+    image: FINAL_PRODUCT_IMAGES["cow-ghee"],
     eyebrow: "Premium Indian Ghee",
     title: "Pure Ghee, Slow-Crafted for Indian Homes",
     copy: "Golden aroma, traditional taste, and everyday nourishment in every spoon of EE Desi Delights ghee.",
@@ -24,7 +49,7 @@ const defaultHeroSlides = [
     link: "#shop"
   },
   {
-    image: "assets/buffalo-ghee-ee.png",
+    image: FINAL_PRODUCT_IMAGES["buffalo-ghee"],
     eyebrow: "Cow & Buffalo Ghee",
     title: "Two Pure Choices for Every Kitchen",
     copy: "Choose pure cow ghee or rich buffalo ghee, both slow-crafted for authentic flavor.",
@@ -32,7 +57,7 @@ const defaultHeroSlides = [
     link: "#products"
   },
   {
-    image: "assets/ghee-gift-hamper-ee.png",
+    image: FINAL_PRODUCT_IMAGES["cow-ghee"],
     eyebrow: "Festive Bulk Orders",
     title: "Traditional Ghee Gifts with a Premium Finish",
     copy: "Create memorable wedding, corporate, and festive hampers with EE Desi Delights green-gold packaging.",
@@ -61,6 +86,9 @@ const defaultSettings = {
 let products = JSON.parse(localStorage.getItem("ee_desi_v3_products") || "null") || defaultProducts;
 let heroSlides = JSON.parse(localStorage.getItem("ee_desi_v3_hero_slides") || "null") || defaultHeroSlides;
 const savedSettings = JSON.parse(localStorage.getItem("ee_desi_v3_settings") || "null") || {};
+
+products = normalizeProductImages(products);
+heroSlides = normalizeHeroImages(heroSlides);
 
 const sizeTiers = [
   { label: "500 ml", multiplier: 1 },
@@ -144,7 +172,7 @@ function dbProductToProduct(row, sizes = []) {
     old: Number(row.old || row.price || 0),
     size: row.size || defaultSize?.label || "500 ml",
     badge: row.badge || "",
-    img: row.img || "assets/cow-ghee-ee.png",
+    img: finalProductImage(row),
     rating: Number(row.rating || 4.8),
     reviews: Number(row.reviews || 0),
     desc: row.description || "",
@@ -169,7 +197,7 @@ function productToDb(product, index = 0) {
     old: Number(product.old || defaultOption.price || product.price || 0),
     size: defaultOption.label || product.size || "500 ml",
     badge: product.badge || "",
-    img: product.img || "",
+    img: finalProductImage(product),
     rating: Number(product.rating || 4.8),
     reviews: Number(product.reviews || 0),
     description: product.desc || "",
@@ -192,9 +220,9 @@ async function loadCloudStore() {
     return false;
   }
 
-  if (productRes.data?.length) products = productRes.data.map(row => dbProductToProduct(row, sizeRes.data || []));
+  if (productRes.data?.length) products = normalizeProductImages(productRes.data.map(row => dbProductToProduct(row, sizeRes.data || [])));
   if (heroRes.data?.length) {
-    heroSlides = heroRes.data.map(row => ({
+    heroSlides = normalizeHeroImages(heroRes.data.map(row => ({
       dbId: row.id,
       image: row.image,
       eyebrow: row.eyebrow,
@@ -202,7 +230,7 @@ async function loadCloudStore() {
       copy: row.copy,
       cta: row.cta,
       link: row.link
-    }));
+    })));
   }
   state.settings = { ...defaultSettings, ...state.settings, ...settingsRowsToObject(settingsRes.data || []) };
   cloudReady = true;
@@ -351,6 +379,8 @@ async function updateCloudOrderStatus(id, status) {
 }
 
 function save() {
+  products = normalizeProductImages(products);
+  heroSlides = normalizeHeroImages(heroSlides);
   localStorage.setItem("ee_desi_v2_cart", JSON.stringify(state.cart));
   localStorage.setItem("ee_desi_v2_user", JSON.stringify(state.user));
   localStorage.setItem("ee_desi_v2_users", JSON.stringify(state.users));
@@ -580,7 +610,7 @@ function renderHome() {
                 <div class="trust-item">${icon("truck")}<b>PAN India</b><span>3-5 day delivery</span></div>
               </div>
             </div>
-            <div class="hero-card"><img src="assets/cow-ghee-ee.png" alt="EE Desi Delights Cow Ghee" /></div>
+            <div class="hero-card"><img src="${FINAL_PRODUCT_IMAGES["cow-ghee"]}" alt="EE Desi Delights Cow Ghee" /></div>
           </article>
         `).join("")}
         <div class="hero-float"><span>Pure<br>Tradition<br>Every Spoon</span></div>
@@ -637,7 +667,7 @@ function storyBand() {
           <p>Milkzen-inspired movement meets EE Desi Delights tradition: animated content blocks, visual storytelling, and a premium ecommerce journey built around authentic Indian ghee.</p>
           <div class="button-row"><a class="btn primary" href="#about">${icon("book-open")} Our Story</a><a class="btn ghost" href="#shipping-policy">Delivery Details</a></div>
         </div>
-        <div class="about-img"><img src="assets/hero-ghee-food.png" alt="Ghee served with Indian food" /></div>
+        <div class="about-img"><img src="${FINAL_PRODUCT_IMAGES["cow-ghee"]}" alt="EE Desi Delights Cow Ghee" /></div>
       </div>
     </section>`;
 }
@@ -659,7 +689,7 @@ function aboutSection() {
   return `
     <section class="section cream-band" id="about">
       <div class="section-inner split">
-        <div class="about-img"><img src="assets/traditional-process.png" alt="Inspired traditional ghee preparation" /></div>
+        <div class="about-img"><img src="${FINAL_PRODUCT_IMAGES["buffalo-ghee"]}" alt="EE Desi Delights Buffalo Ghee" /></div>
         <div>
           <span class="eyebrow">About EE Desi Delights</span>
           <h2>Ghee made the slow, traditional way</h2>
@@ -718,7 +748,7 @@ function bulkSection() {
           <p>Order EE Desi Delights ghee for weddings, corporate gifts, pooja needs, restaurants, sweet shops, and family functions. Demo bulk enquiry is included for the local site.</p>
           <div class="button-row"><button class="btn primary" onclick="showToast('Bulk enquiry demo submitted. We will call you shortly.')">${icon("send")} Request Quote</button><a class="btn ghost" href="#shop">Browse Packs</a></div>
         </div>
-        <div class="about-img"><img src="assets/ghee-gift-hamper-ee.png" alt="EE Desi Delights Cow Ghee and Buffalo Ghee gift hamper" /></div>
+        <div class="about-img"><img src="${FINAL_PRODUCT_IMAGES["cow-ghee"]}" alt="EE Desi Delights Cow Ghee and Buffalo Ghee gift hamper" /></div>
       </div>
     </section>`;
 }
@@ -760,8 +790,8 @@ function renderProduct(id) {
         <div>
           <div class="gallery-main"><span class="tag">${product.badge}</span><img id="mainProductImage" src="${product.img}" alt="${product.name}" /></div>
           <div class="thumbs">
-            <img src="assets/cow-ghee-ee.png" onclick="setMainImage(this.src)" alt="Cow Ghee" />
-            <img src="assets/buffalo-ghee-ee.png" onclick="setMainImage(this.src)" alt="Buffalo Ghee" />
+            <img src="${FINAL_PRODUCT_IMAGES["cow-ghee"]}" onclick="setMainImage(this.src)" alt="Cow Ghee" />
+            <img src="${FINAL_PRODUCT_IMAGES["buffalo-ghee"]}" onclick="setMainImage(this.src)" alt="Buffalo Ghee" />
             <img src="${product.img}" onclick="setMainImage(this.src)" alt="${product.name}" />
           </div>
         </div>
@@ -1184,7 +1214,7 @@ function renderBulkPage() {
     ${bulkSection()}
     <section class="section cream-band">
       <div class="section-inner split">
-        <div class="about-img"><img src="assets/ghee-gift-hamper-ee.png" alt="EE Desi Delights Cow Ghee and Buffalo Ghee gift hamper" /></div>
+        <div class="about-img"><img src="${FINAL_PRODUCT_IMAGES["buffalo-ghee"]}" alt="EE Desi Delights Cow Ghee and Buffalo Ghee gift hamper" /></div>
         <div>
           <span class="eyebrow">Bulk Categories</span><h2>Built for gifting and food service</h2>
           <ul class="check-list">
@@ -1680,7 +1710,7 @@ async function addAdminProduct() {
       { label: "1 Litre", price: 949 }
     ],
     badge: "New",
-    img: "assets/cow-ghee-ee.png",
+    img: FINAL_PRODUCT_IMAGES["cow-ghee"],
     rating: 4.8,
     reviews: 0,
     desc: "Write product description from admin panel."
