@@ -71,7 +71,7 @@ const defaultSettings = {
   footerLogo: "assets/logo-white.png",
   brandName: "EE Desi Delights",
   razorpayEnabled: true,
-  razorpayKey: "rzp_test_1DP5mmOlF5G5ag",
+  razorpayKey: "rzp_live_TDgMX4bMKxWlzL",
   razorpayMerchant: "EE Desi Delights",
   razorpayCurrency: "INR",
   supportPhone: "+91 96666 77434",
@@ -110,6 +110,14 @@ let state = {
   checkout: JSON.parse(localStorage.getItem("ee_desi_v2_checkout") || "{}"),
   settings: { ...defaultSettings, ...savedSettings }
 };
+
+function ensureLiveRazorpayPublicKey() {
+  if (!String(state.settings.razorpayKey || "").startsWith("rzp_live_")) {
+    state.settings.razorpayKey = defaultSettings.razorpayKey;
+  }
+}
+
+ensureLiveRazorpayPublicKey();
 
 state.cart = state.cart.filter(item => isVisibleSizeLabel(item.size));
 
@@ -233,6 +241,7 @@ async function loadCloudStore() {
     })));
   }
   state.settings = { ...defaultSettings, ...state.settings, ...settingsRowsToObject(settingsRes.data || []) };
+  ensureLiveRazorpayPublicKey();
   cloudReady = true;
   save();
   return true;

@@ -273,7 +273,7 @@ values
   ('footerLogo', '"assets/logo-white.png"'::jsonb),
   ('brandName', '"EE Desi Delights"'::jsonb),
   ('razorpayEnabled', 'true'::jsonb),
-  ('razorpayKey', '"rzp_test_1DP5mmOlF5G5ag"'::jsonb),
+  ('razorpayKey', '"rzp_live_TDgMX4bMKxWlzL"'::jsonb),
   ('razorpayMerchant', '"EE Desi Delights"'::jsonb),
   ('razorpayCurrency', '"INR"'::jsonb),
   ('supportPhone', '"+91 96666 77434"'::jsonb),
