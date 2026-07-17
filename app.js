@@ -320,9 +320,14 @@ async function saveCloudOrder(order) {
   if (!supabaseClient || !cloudReady) return false;
   const address = {
     line1: state.checkout.address,
+    landmark: state.checkout.landmark,
     city: state.checkout.city,
     state: state.checkout.stateName,
-    pincode: state.checkout.pincode
+    pincode: state.checkout.pincode,
+    note: state.checkout.note,
+    latitude: state.checkout.latitude,
+    longitude: state.checkout.longitude,
+    mapLink: state.checkout.mapLink || mapsLink(state.checkout.latitude, state.checkout.longitude)
   };
   const orderPayload = {
     id: order.id,
@@ -381,6 +386,13 @@ async function loadCloudOrders() {
     return {
       id: order.id,
       date: new Date(order.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+      createdAt: order.created_at,
+      customer: {
+        name: order.customer_name,
+        email: order.customer_email,
+        phone: order.customer_phone
+      },
+      address: order.address || {},
       items,
       subtotal: order.subtotal,
       shipping: order.shipping,
@@ -1908,9 +1920,173 @@ function adminProducts() {
     </section>`;
 }
 
+const CODE128_PATTERNS = [
+  "212222","222122","222221","121223","121322","131222","122213","122312","132212","221213",
+  "221312","231212","112232","122132","122231","113222","123122","123221","223211","221132",
+  "221231","213212","223112","312131","311222","321122","321221","312212","322112","322211",
+  "212123","212321","232121","111323","131123","131321","112313","132113","132311","211313",
+  "231113","231311","112133","112331","132131","113123","113321","133121","313121","211331",
+  "231131","213113","213311","213131","311123","311321","331121","312113","312311","332111",
+  "314111","221411","431111","111224","111422","121124","121421","141122","141221","112214",
+  "112412","122114","122411","142112","142211","241211","221114","413111","241112","134111",
+  "111242","121142","121241","114212","124112","124211","411212","421112","421211","212141",
+  "214121","412121","111143","111341","131141","114113","114311","411113","411311","113141",
+  "114131","311141","411131","211412","211214","211232","2331112"
+];
+
+function barcodeSvg(value = "", height = 72) {
+  const cleanValue = String(value || "ORDER").replace(/[^\x20-\x7E]/g, "").slice(0, 48) || "ORDER";
+  const codes = [104, ...cleanValue.split("").map(char => char.charCodeAt(0) - 32)];
+  let checksum = codes[0];
+  for (let index = 1; index < codes.length; index += 1) checksum += codes[index] * index;
+  codes.push(checksum % 103, 106);
+
+  let x = 10;
+  let bars = "";
+  codes.forEach(code => {
+    const pattern = CODE128_PATTERNS[code] || CODE128_PATTERNS[0];
+    [...pattern].forEach((widthChar, index) => {
+      const width = Number(widthChar);
+      if (index % 2 === 0) bars += `<rect x="${x}" y="0" width="${width}" height="${height}" />`;
+      x += width;
+    });
+  });
+  const totalWidth = x + 10;
+  return `<svg class="barcode-svg" viewBox="0 0 ${totalWidth} ${height}" role="img" aria-label="Barcode ${escapeAttr(cleanValue)}" xmlns="http://www.w3.org/2000/svg">${bars}</svg>`;
+}
+
 function orderMapLink(order) {
   const address = order.address || {};
   return address.mapLink || mapsLink(address.latitude, address.longitude);
+}
+
+function orderCustomer(order) {
+  return order.customer || {
+    name: state.checkout.fullName || "Customer",
+    email: "",
+    phone: ""
+  };
+}
+
+function orderAddressText(order) {
+  const address = order.address || {};
+  return [address.line1, address.landmark, address.city, address.state, address.pincode].filter(Boolean).join(", ");
+}
+
+function orderItemsForLabel(order) {
+  return (order.items || []).map(item => {
+    const product = products.find(p => p.id === item.id);
+    const name = product?.name || item.name || item.product_name || item.id;
+    const size = product ? lineSize(item, product) : item.size;
+    const unitPrice = product ? lineUnitPrice(item, product) : Number(item.unitPrice || 0);
+    return { name, size, qty: item.qty || 1, unitPrice };
+  });
+}
+
+function orderLabelHtml(order) {
+  const customer = orderCustomer(order);
+  const addressText = orderAddressText(order);
+  const mapLink = orderMapLink(order);
+  const items = orderItemsForLabel(order);
+  const labelDate = order.createdAt
+    ? new Date(order.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+    : order.date;
+  return `
+    <div class="print-label">
+      <div class="label-head">
+        <div>
+          <h1>EE Desi Delights</h1>
+          <p>Pure Ghee Order Label</p>
+        </div>
+        <strong>${escapeHtml(order.id)}</strong>
+      </div>
+      <div class="label-barcode">
+        ${barcodeSvg(order.id)}
+        <b>${escapeHtml(order.id)}</b>
+        <span>Scan barcode for Order ID</span>
+      </div>
+      <div class="label-grid">
+        <section>
+          <small>Customer</small>
+          <b>${escapeHtml(customer.name || "Customer")}</b>
+          <p>${escapeHtml(customer.phone || "-")}</p>
+          <p>${escapeHtml(customer.email || "")}</p>
+        </section>
+        <section>
+          <small>Order</small>
+          <b>${escapeHtml(order.status || "Placed")}</b>
+          <p>${escapeHtml(labelDate || "")}</p>
+          <p>${escapeHtml(order.payment || "")}</p>
+        </section>
+      </div>
+      <section class="label-address">
+        <small>Delivery Address</small>
+        <p>${escapeHtml(addressText || "Address not available")}</p>
+        ${order.address?.note ? `<p><b>Note:</b> ${escapeHtml(order.address.note)}</p>` : ""}
+        ${mapLink ? `<p><b>Map:</b> ${escapeHtml(mapLink)}</p>` : ""}
+      </section>
+      <section class="label-items">
+        <small>Items</small>
+        ${items.map(item => `<div><span>${escapeHtml(item.name)} &bull; ${escapeHtml(item.size || "")}</span><b>${item.qty} × ${money(item.unitPrice)}</b></div>`).join("") || "<p>No items found</p>"}
+      </section>
+      <div class="label-total">
+        <span>Total</span>
+        <b>${money(order.total || 0)}</b>
+      </div>
+      <footer>
+        <span>Support: +91 96666 77434</span>
+        <span>eedesidelights@gmail.com</span>
+      </footer>
+    </div>`;
+}
+
+function printOrderLabel(id) {
+  const order = state.orders.find(item => item.id === id);
+  if (!order) { showToast("Order not found"); return; }
+  const win = window.open("", "_blank", "width=520,height=760");
+  if (!win) {
+    showToast("Please allow popups to print order labels");
+    return;
+  }
+  win.document.write(`<!doctype html>
+    <html>
+      <head>
+        <title>Order Label ${escapeHtml(order.id)}</title>
+        <meta charset="utf-8" />
+        <style>
+          @page { size: 100mm 150mm; margin: 6mm; }
+          * { box-sizing: border-box; }
+          body { margin: 0; color: #111; font-family: Arial, sans-serif; background: #fff; }
+          .print-label { width: 100%; min-height: 138mm; border: 2px solid #111; border-radius: 10px; padding: 14px; display: grid; gap: 10px; }
+          .label-head, .label-grid, .label-total, footer { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+          h1 { margin: 0; font-size: 21px; letter-spacing: .02em; }
+          p { margin: 3px 0; line-height: 1.35; }
+          small { display: block; margin-bottom: 4px; color: #555; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+          .label-head p { color: #555; font-size: 12px; }
+          .label-head strong { font-size: 18px; }
+          .label-barcode { text-align: center; border-block: 1px solid #111; padding: 10px 0 8px; }
+          .barcode-svg { width: 100%; height: 76px; display: block; }
+          .barcode-svg rect { fill: #000; }
+          .label-barcode b { display: block; font-size: 17px; letter-spacing: .14em; margin-top: 6px; }
+          .label-barcode span { color: #555; font-size: 11px; }
+          .label-grid section { width: 50%; }
+          .label-address, .label-items { border-top: 1px solid #ddd; padding-top: 9px; }
+          .label-address p { font-size: 12px; word-break: break-word; }
+          .label-items div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #ccc; padding: 5px 0; font-size: 12px; }
+          .label-total { border-top: 2px solid #111; padding-top: 8px; font-size: 18px; font-weight: 800; }
+          footer { margin-top: auto; border-top: 1px solid #111; padding-top: 7px; font-size: 10px; color: #333; }
+          .print-actions { position: fixed; right: 12px; top: 12px; display: flex; gap: 8px; }
+          .print-actions button { border: 0; border-radius: 6px; padding: 9px 12px; font-weight: 700; background: #0f3d2e; color: #fff; cursor: pointer; }
+          @media print { .print-actions { display: none; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+        </style>
+      </head>
+      <body>
+        <div class="print-actions"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
+        ${orderLabelHtml(order)}
+        <script>window.addEventListener("load", () => setTimeout(() => window.print(), 250));<\/script>
+      </body>
+    </html>`);
+  win.document.close();
 }
 
 function adminOrderAddress(order) {
@@ -1933,6 +2109,7 @@ function adminOrders() {
       <span class="admin-pill live">${order.status}</span>
       <select onchange="updateOrderStatus('${order.id}', this.value)"><option>${order.status}</option><option>Processing</option><option>Packed</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
       <strong>${money(order.total)}</strong>
+      <button class="admin-mini-btn print-label-btn" type="button" onclick="printOrderLabel('${order.id}')">${icon("printer")} Print Label</button>
     </div>`).join("") : "<p>No orders yet.</p>"}</div></section>`;
 }
 
@@ -2009,6 +2186,15 @@ function adminSelectTab(tab) {
 
 function escapeAttr(value = "") {
   return String(value).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function readImage(fileInput, callback) {
@@ -2591,6 +2777,23 @@ async function completeOrder(status, paymentDetails = {}, verifiedTotals = null)
   const order = {
     id: `DD-${Date.now().toString().slice(-6)}`,
     date: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+    createdAt: new Date().toISOString(),
+    customer: {
+      name: state.checkout.fullName || state.user?.name || "Customer",
+      email: state.checkout.email || state.user?.email || "",
+      phone: state.checkout.phone || state.user?.phone || ""
+    },
+    address: {
+      line1: state.checkout.address,
+      landmark: state.checkout.landmark,
+      city: state.checkout.city,
+      state: state.checkout.stateName,
+      pincode: state.checkout.pincode,
+      note: state.checkout.note,
+      latitude: state.checkout.latitude,
+      longitude: state.checkout.longitude,
+      mapLink: state.checkout.mapLink || mapsLink(state.checkout.latitude, state.checkout.longitude)
+    },
     items: orderItems,
     subtotal: totals.subtotal,
     shipping: totals.shipping,
